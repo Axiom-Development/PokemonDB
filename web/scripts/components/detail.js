@@ -1,3 +1,4 @@
+import { imageSrc } from "../imagesrc.js";
 import { api } from "../api.js";
 import { state, isOwned, refreshCollection } from "../state.js";
 import { typeChipsRow } from "../typecolors.js";
@@ -49,7 +50,7 @@ export async function openDetail(pokedexNumber, { onChanged } = {}) {
   const art = document.createElement("div");
   art.className = "drawer__art";
   const img = document.createElement("img");
-  img.src = "/" + p.image_path;
+  img.src = imageSrc(p);
   img.alt = "";
   art.appendChild(img);
   body.appendChild(art);

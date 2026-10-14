@@ -1,0 +1,6 @@
+# Not needed to run the deployed site: artwork is loaded from its hosted URL,
+# and the local database file and tests never ship.
+images/
+runtime/
+tests/
+figma-screens/

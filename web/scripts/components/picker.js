@@ -1,3 +1,4 @@
+import { imageSrc } from "../imagesrc.js";
 import { state } from "../state.js";
 import { typeChipsRow } from "../typecolors.js";
 import { trapFocus } from "./a11y.js";
@@ -59,7 +60,7 @@ export function openPicker({ title, exclude = new Set(), onSelect }) {
       const art = document.createElement("div");
       art.className = "result-card__art";
       const img = document.createElement("img");
-      img.src = "/" + p.image_path;
+      img.src = imageSrc(p);
       img.alt = "";
       art.appendChild(img);
       row.appendChild(art);

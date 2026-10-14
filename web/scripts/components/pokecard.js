@@ -1,3 +1,4 @@
+import { imageSrc } from "../imagesrc.js";
 import { typeChipsRow } from "../typecolors.js";
 import { checkIcon } from "../icons.js";
 
@@ -20,7 +21,7 @@ export function specimenCard(p, { onClick, showOwned = true } = {}) {
   const art = document.createElement("div");
   art.className = "specimen-card__art";
   const img = document.createElement("img");
-  img.src = "/" + p.image_path;
+  img.src = imageSrc(p);
   img.alt = "";
   img.loading = "lazy";
   art.appendChild(img);
@@ -50,7 +51,7 @@ export function miniRow(p, { trailing } = {}) {
   const art = document.createElement("div");
   art.className = "result-card__art";
   const img = document.createElement("img");
-  img.src = "/" + p.image_path;
+  img.src = imageSrc(p);
   img.alt = "";
   art.appendChild(img);
   row.appendChild(art);

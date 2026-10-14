@@ -1,3 +1,4 @@
+import { imageSrc } from "../imagesrc.js";
 import { api } from "../api.js";
 import { state, ensurePokemonLoaded, ensureUserResolved, isOwned } from "../state.js";
 import { typeChipsRow } from "../typecolors.js";
@@ -22,7 +23,7 @@ function opponentChips(container) {
     const chip = document.createElement("span");
     chip.className = "opponent-chip";
     const img = document.createElement("img");
-    img.src = "/" + p.image_path;
+    img.src = imageSrc(p);
     img.alt = "";
     chip.appendChild(img);
     const label = document.createElement("span");
@@ -71,7 +72,7 @@ function resultRow(r, rank) {
   const art = document.createElement("div");
   art.className = "result-card__art";
   const img = document.createElement("img");
-  img.src = "/" + p.image_path;
+  img.src = imageSrc(p);
   img.alt = "";
   art.appendChild(img);
   row.appendChild(art);
@@ -202,7 +203,7 @@ async function runGenerate(root) {
     for (const m of data.members) {
       const slot = document.createElement("div");
       slot.className = "team-slot is-filled";
-      slot.innerHTML = `<img src="/${m.image_path}" alt="" style="width:3.5rem">
+      slot.innerHTML = `<img src="${imageSrc(m)}" alt="" style="width:3.5rem">
         <div style="font-weight:600;font-size:0.85rem">${m.name}</div>`;
       slot.appendChild(typeChipsRow(m.types));
       if (!m.owned) {

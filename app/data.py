@@ -50,6 +50,7 @@ def _row_to_pokemon(row):
         "is_legendary": _to_bool(row["is_legendary"]),
         "is_mythical": _to_bool(row["is_mythical"]),
         "image_path": row["image_path"],
+        "image_url": row.get("image_url") or "",
     }
 
 

@@ -1,3 +1,4 @@
+import { imageSrc } from "../imagesrc.js";
 import { api } from "../api.js";
 import { state, ensurePokemonLoaded, ensureUserResolved, isOwned } from "../state.js";
 import { typeChipsRow } from "../typecolors.js";
@@ -19,7 +20,7 @@ function memberCard(num, { onRemove }) {
   const slot = document.createElement("div");
   slot.className = "team-slot is-filled";
   const img = document.createElement("img");
-  img.src = "/" + p.image_path;
+  img.src = imageSrc(p);
   img.alt = "";
   img.style.width = "3.5rem";
   slot.appendChild(img);
@@ -317,7 +318,7 @@ function teamSummaryCard(team) {
   thumbs.style.marginTop = "0.6rem";
   for (const m of team.members) {
     const img = document.createElement("img");
-    img.src = "/" + m.image_path;
+    img.src = imageSrc(m);
     img.alt = m.name;
     img.title = m.name;
     img.style.width = "3rem";
