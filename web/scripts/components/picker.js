@@ -40,7 +40,7 @@ export function openPicker({ title, exclude = new Set(), onSelect }) {
   body.appendChild(search);
 
   const list = document.createElement("div");
-  list.style.marginTop = "0.75rem";
+  list.className = "picker-list";
   body.appendChild(list);
   dialog.appendChild(body);
 
