@@ -10,7 +10,8 @@ const STAT_LABELS = [
   ["hp", "HP"], ["attack", "Attack"], ["defense", "Defense"],
   ["special_attack", "Sp. Atk"], ["special_defense", "Sp. Def"], ["speed", "Speed"],
 ];
-const STAT_MAX = 180;
+// Stat bars are drawn on the full base-stat scale (max 255).
+const STAT_MAX = 255;
 
 function fmtMult(m) {
   if (m === 1) return "1x";
@@ -25,51 +26,67 @@ export async function openDetail(pokedexNumber, { onChanged } = {}) {
 
   const scrim = document.createElement("div");
   scrim.className = "scrim";
+  // Two-panel device: the big LCD screen (+ action keys) on the left, the
+  // name bar and bezel data sheet on the right.
   const drawer = document.createElement("div");
-  drawer.className = "drawer";
+  drawer.className = "drawer drawer--detail";
   drawer.setAttribute("role", "dialog");
   drawer.setAttribute("aria-modal", "true");
   drawer.setAttribute("aria-label", `${p.name} specimen sheet`);
 
   const head = document.createElement("div");
-  head.className = "drawer__head";
-  const num = document.createElement("span");
-  num.className = "drawer__num";
-  num.textContent = "No. " + String(p.pokedex_number).padStart(4, "0");
+  head.className = "drawer__head detail__namebar";
+  const name = document.createElement("h2");
+  name.className = "drawer__name";
+  name.textContent = p.name;
   const close = document.createElement("button");
   close.type = "button";
   close.className = "drawer__close";
   close.appendChild(closeIcon());
   close.setAttribute("aria-label", "Close specimen sheet");
-  head.append(num, close);
+  head.append(name, close);
   drawer.appendChild(head);
 
-  const body = document.createElement("div");
-  body.className = "drawer__body";
-
+  const left = document.createElement("div");
+  left.className = "detail__left";
   const art = document.createElement("div");
-  art.className = "drawer__art";
+  art.className = "drawer__art detail__screen";
+  const num = document.createElement("span");
+  num.className = "drawer__num";
+  num.textContent = "No. " + String(p.pokedex_number).padStart(4, "0");
   const img = document.createElement("img");
   img.src = imageSrc(p);
   img.alt = "";
-  art.appendChild(img);
-  body.appendChild(art);
-
-  const name = document.createElement("h2");
-  name.className = "drawer__name";
-  name.textContent = p.name;
-  body.appendChild(name);
-
-  const genus = document.createElement("p");
-  genus.className = "drawer__genus";
-  genus.textContent = `${p.genus} · Generation ${p.generation}`;
-  body.appendChild(genus);
-
-  body.appendChild(typeChipsRow(p.types));
+  art.append(num, img);
+  left.appendChild(art);
 
   const actions = document.createElement("div");
   actions.className = "drawer__actions";
-  body.appendChild(actions);
+  left.appendChild(actions);
+  drawer.appendChild(left);
+
+  const body = document.createElement("div");
+  body.className = "drawer__body detail__sheet";
+
+  body.appendChild(typeChipsRow(p.types));
+
+  const sheet = document.createElement("dl");
+  sheet.className = "detail__data";
+  for (const [label, value] of [
+    ["Category", p.genus],
+    ["Generation", String(p.generation)],
+    ["Height", `${p.height_m} m`],
+    ["Weight", `${p.weight_kg} kg`],
+  ]) {
+    const row = document.createElement("div");
+    const dt = document.createElement("dt");
+    dt.textContent = label;
+    const dd = document.createElement("dd");
+    dd.textContent = value;
+    row.append(dt, dd);
+    sheet.appendChild(row);
+  }
+  body.appendChild(sheet);
 
   function renderActions() {
     actions.textContent = "";
@@ -103,20 +120,26 @@ export async function openDetail(pokedexNumber, { onChanged } = {}) {
   renderActions();
 
   body.appendChild(Object.assign(document.createElement("h3"), { className: "section-label", textContent: "Base stats" }));
+  const stats = document.createElement("div");
+  stats.className = "detail__stats";
   for (const [key, label] of STAT_LABELS) {
     const value = p.stats[key];
     const row = document.createElement("div");
     row.className = "stat-row";
     row.innerHTML = `
       <span class="stat-row__label">${label}</span>
-      <span class="stat-row__track"><span class="stat-row__fill" style="width:${Math.min(100, (value / STAT_MAX) * 100)}%"></span></span>
+      <span class="stat-row__track"><span class="stat-row__fill" style="--fill:${Math.min(1, value / STAT_MAX)}"></span></span>
       <span class="stat-row__value">${value}</span>`;
-    body.appendChild(row);
+    stats.appendChild(row);
   }
-  const totalRow = document.createElement("p");
-  totalRow.className = "field__hint";
-  totalRow.textContent = `Total: ${p.total_stats} · Height ${p.height_m} m · Weight ${p.weight_kg} kg`;
-  body.appendChild(totalRow);
+  const totalRow = document.createElement("div");
+  totalRow.className = "stat-row stat-row--total";
+  totalRow.innerHTML = `
+    <span class="stat-row__label">Total</span>
+    <span></span>
+    <span class="stat-row__value">${p.total_stats}</span>`;
+  stats.appendChild(totalRow);
+  body.appendChild(stats);
 
   body.appendChild(Object.assign(document.createElement("h3"), { className: "section-label", textContent: "Type weaknesses & resistances" }));
   const matchupBox = document.createElement("div");

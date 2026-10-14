@@ -1,3 +1,570 @@
 /* PokemonDB -- database screens on the Pokédex device: the browse grid on
    one LCD screen, the two-panel detail sheet, readouts for teams, battle
    results and account counts. Builds on tokens.css + main.css. */
+
+/* ======================================================= Pokédex device
+   Red device frame: lens + title + live LCD counter, generation progress
+   cards, the filter controls, then ONE LCD screen holding every region's
+   grid. All readouts come from real dataset/collection state. */
+
+.pokedex-device {
+  margin-bottom: 24px;
+  padding: 14px 14px 22px;
+  background: var(--dex-red);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: inset 0 2px 0 var(--dex-red-glint), inset 0 -8px 0 var(--dex-red-dark), var(--shadow);
+}
+.pokedex-device__top {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  margin-bottom: 16px;
+}
+.pokedex-device__lens {
+  position: relative;
+  flex: none;
+  width: 46px;
+  height: 46px;
+  margin: 7px;
+  border-radius: 50%;
+  background: var(--blue-ray);
+  border: var(--line) solid var(--ink);
+  box-shadow:
+    0 0 0 4px var(--white),
+    0 0 0 7px var(--ink),
+    inset -6px -6px 0 var(--blue);
+}
+.pokedex-device__lens::after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 6px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--white);
+}
+.pokedex-device__title-wrap { flex: 1; min-width: 12rem; }
+.pokedex-device__title {
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  line-height: 1;
+  color: var(--white);
+  text-shadow: 3px 3px 0 var(--ink);
+}
+.pokedex-device__title-wrap .view-subtitle { margin-top: 10px; }
+
+/* Live caught/total counter: a small LCD in its own bezel. */
+.pokedex-device__counter {
+  flex: none;
+  margin: 8px 8px 8px auto;
+  padding: 9px 12px 8px;
+  background: var(--scanlines), var(--lcd);
+  color: var(--lcd-dark);
+  border: var(--line-sm) solid var(--ink);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--bezel-ring-sm);
+  font-family: var(--font-lcd);
+  font-size: 1.125rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Generation progress: small LCD cards with segmented bars. */
+.pokedex-device__progress {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.pokedex-device__gen-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "num count" "bar bar";
+  align-items: center;
+  gap: 6px;
+  padding: 7px 8px 8px;
+  background: var(--scanlines), var(--lcd);
+  color: var(--lcd-dark);
+  border: var(--line-sm) solid var(--ink);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+.pokedex-device__gen-numeral {
+  grid-area: num;
+  font-family: var(--font-lcd);
+  font-size: 0.875rem;
+  line-height: 1;
+}
+.pokedex-device__gen-count {
+  grid-area: count;
+  justify-self: end;
+  font-family: var(--font-lcd);
+  font-size: 0.6875rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+.pokedex-device__gen-bar {
+  grid-area: bar;
+  display: block;
+  height: 12px;
+  padding: 1px;
+  background: var(--lcd-line);
+  border: var(--line-sm) solid var(--lcd-dark);
+  border-radius: 2px;
+}
+.pokedex-device__gen-bar span {
+  display: block;
+  height: 100%;
+  background: var(--segments);
+}
+
+/* Filter controls: a bezel panel of LCD selects and type keys. */
+.dex-filters {
+  padding: 12px;
+  background: var(--bezel);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: var(--shadow);
+}
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.toolbar__count {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 8px 12px 7px;
+  background: var(--scanlines), var(--lcd);
+  color: var(--lcd-dark);
+  border: var(--line-sm) solid var(--ink);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+.toolbar__count .lcd-num { font-size: 1rem; }
+.dex-filters .chip-btn {
+  min-height: 34px;
+  padding: 3px 10px 3px 7px;
+  font-size: 0.875rem;
+}
+/* Type swatch: shape + name identify the type; selection adds the border. */
+.dex-filters .chip-btn::before {
+  content: "";
+  flex: none;
+  width: 12px;
+  height: 12px;
+  background: var(--type-color, var(--ink-soft));
+  border: var(--line-sm) solid var(--ink);
+  border-radius: 2px;
+}
+.dex-filters .field__hint { color: var(--ink-soft); }
+
+/* The one LCD screen the whole browse grid sits on. */
+.pokedex-device__screen {
+  margin: 28px 10px 0;
+  padding: 14px;
+  background: var(--scanlines), var(--lcd);
+  color: var(--lcd-dark);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: var(--bezel-ring);
+}
+
+/* Region keys: a segmented track on the screen. */
+.dex-regions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 4px;
+  margin-bottom: 12px;
+  padding: 4px;
+  background: var(--bezel-dark);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+}
+.dex-regions > .chip-btn:not(.is-active) {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+.dex-regions > .chip-btn:not(.is-active):hover { background: var(--bezel); border-color: var(--ink-soft); }
+
+.dex-region-sections { display: grid; gap: 2px; }
+.dex-region-section { scroll-margin-top: 12px; }
+.dex-region-section + .dex-region-section { border-top: var(--line-sm) dashed var(--lcd-dark); padding-top: 2px; }
+.dex-region-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px;
+  list-style: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.dex-region-heading::-webkit-details-marker { display: none; }
+.dex-region-heading::before {
+  content: "";
+  flex: none;
+  width: 0;
+  height: 0;
+  border-left: 10px solid var(--lcd-dark);
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+}
+.dex-region-section[open] > .dex-region-heading::before { transform: rotate(90deg); }
+.dex-region-heading:hover { background: var(--lcd-line); }
+.dex-region-heading h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  line-height: 1.1;
+  color: var(--lcd-dark);
+}
+.dex-region-heading span {
+  margin-left: auto;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--lcd-dark);
+  text-align: right;
+}
+.dex-region-section > .dex-grid { padding: 6px 0 18px; }
+
+/* ============================================================ browse grid */
+
+.dex-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.25rem, 1fr));
+  gap: 10px;
+}
+.dex-grid > .empty-state { grid-column: 1 / -1; }
+
+/* Entry cell: bezel card, LCD dex number, artwork, bold name, type badges. */
+.specimen-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  min-width: 0;
+  padding: 8px 8px 10px;
+  background: var(--bezel);
+  color: var(--ink);
+  border: var(--line-sm) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: var(--shadow-sm);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 80ms steps(2, end);
+}
+.specimen-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 0 var(--ink);
+}
+.specimen-card:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 var(--ink);
+}
+.specimen-card:focus-visible { box-shadow: var(--shadow-sm), var(--focus-ring); }
+.specimen-card__num {
+  order: -1;
+  align-self: flex-start;
+  padding: 2px 5px 1px;
+  background: var(--lcd);
+  color: var(--lcd-dark);
+  border: var(--line-sm) solid var(--ink);
+  border-radius: var(--radius-chip);
+  font-family: var(--font-lcd);
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+.specimen-card__art {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+.specimen-card__art img { width: 88%; height: 88%; object-fit: contain; }
+.specimen-card__name {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+.owned-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  background: var(--good);
+  color: var(--white);
+  border: var(--line-sm) solid var(--ink);
+  border-radius: 50%;
+}
+.owned-badge svg { width: 13px; height: 13px; }
+
+/* ========================================================== detail sheet
+   Two-panel device opened with the power-on reveal (see .drawer). */
+
+.drawer--detail {
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  width: min(62rem, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  grid-template-rows: auto 1fr;
+  grid-template-areas: "left name" "left sheet";
+  column-gap: 22px;
+  padding: 18px 18px 26px;
+  background: var(--dex-red);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: inset 0 2px 0 var(--dex-red-glint), inset 0 -8px 0 var(--dex-red-dark), var(--shadow);
+}
+.detail__namebar {
+  grid-area: name;
+  position: static;
+  padding: 10px 10px 14px 16px;
+  border: var(--line) solid var(--ink);
+  border-radius: 5px 5px 0 0;
+}
+.drawer--detail .drawer__name {
+  font-size: var(--text-xl);
+  overflow-wrap: anywhere;
+}
+
+.detail__left {
+  grid-area: left;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 10px;
+}
+.detail__screen {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  padding: 40px 18px 18px;
+  background: var(--scanlines), var(--lcd);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: var(--bezel-ring);
+}
+.detail__screen img { width: 84%; max-height: 100%; object-fit: contain; }
+.detail__screen .drawer__num {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  font-family: var(--font-lcd);
+  font-size: 1.125rem;
+  line-height: 1;
+  color: var(--lcd-dark);
+}
+.drawer__actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.detail__left .field__hint {
+  padding: 6px 10px;
+  background: var(--dex-red-dark);
+  color: var(--white);
+  border: var(--line-sm) solid var(--ink);
+  border-radius: var(--radius-chip);
+  font-weight: 500;
+}
+
+.detail__sheet {
+  grid-area: sheet;
+  padding: 14px 16px 18px;
+  background: var(--bezel);
+  border: var(--line) solid var(--ink);
+  border-top: none;
+  border-radius: 0 0 var(--radius-fallback) var(--radius-fallback);
+  box-shadow: var(--shadow);
+}
+.detail__sheet .section-label { margin: 20px 0 10px; }
+
+/* Label / value rows separated by dotted screen-divider rules. */
+.detail__data { margin: 12px 0 0; }
+.detail__data > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 2px;
+  border-bottom: var(--line-sm) dotted var(--lcd-line);
+}
+.detail__data dt {
+  font-size: var(--text-label);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--dex-red-dark);
+}
+.detail__data dd { margin: 0; font-weight: 600; text-align: right; }
+
+/* Base stats: segmented LCD bars (blocks 9px, scale /255) + Silkscreen values. */
+.detail__stats,
+.matchup-grid {
+  margin: 0 8px;
+  padding: 8px 12px;
+  background: var(--scanlines), var(--lcd);
+  color: var(--lcd-dark);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: var(--bezel-ring-sm);
+}
+.stat-row {
+  display: grid;
+  grid-template-columns: 4.75rem minmax(0, 1fr) 2.75rem;
+  align-items: center;
+  gap: 10px;
+  padding: 3px 0;
+}
+.stat-row__label {
+  font-size: var(--text-label);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.stat-row__track {
+  display: block;
+  height: 16px;
+  padding: 2px;
+  background: var(--lcd-line);
+  border: var(--line-sm) solid var(--lcd-dark);
+  border-radius: 2px;
+}
+.stat-row__fill {
+  display: block;
+  height: 100%;
+  width: max(7px, calc(var(--fill, 0) * 100%));
+  background: var(--segments-stat);
+}
+@supports (width: round(nearest, 10px, 9px)) {
+  .stat-row__fill { width: max(7px, round(nearest, calc(var(--fill, 0) * 100%), 9px)); }
+}
+.stat-row__value {
+  font-family: var(--font-lcd);
+  font-size: 1rem;
+  line-height: 1;
+  text-align: right;
+}
+.stat-row--total {
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: var(--line-sm) dotted var(--lcd-dark);
+}
+.stat-row--total .stat-row__value { font-size: 1.125rem; }
+
+/* Type matchups readout. */
+.matchup-grid { display: flex; flex-direction: column; font-weight: 600; }
+.matchup-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+}
+.matchup-row + .matchup-row { border-top: var(--line-sm) dotted var(--lcd-line); }
+.matchup-row__mult {
+  flex: none;
+  width: 3.25rem;
+  font-family: var(--font-lcd);
+  font-size: 1rem;
+  color: var(--lcd-dark);
+}
+.matchup-row__types { display: flex; flex-wrap: wrap; gap: 4px; }
+.mult-4 .matchup-row__mult, .mult-2 .matchup-row__mult { color: var(--bad); }
+
+/* ===================================================== phones (Pokédex) */
+
+@media (max-width: 720px) {
+  .pokedex-device { padding: 10px 8px 16px; }
+  .pokedex-device__top { gap: 10px 12px; margin-bottom: 12px; }
+  .pokedex-device__lens { width: 36px; height: 36px; margin: 6px; }
+  .pokedex-device__lens::after { width: 8px; height: 8px; top: 4px; left: 5px; }
+  .pokedex-device__title { font-size: 1.75rem; }
+  .pokedex-device__title-wrap { min-width: 0; flex-basis: calc(100% - 70px); }
+  .pokedex-device__counter { margin: 6px 6px 6px 6px; font-size: 1rem; }
+  .pokedex-device__progress { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-bottom: 14px; }
+  .pokedex-device__gen-card { padding: 6px 6px 7px; }
+  .dex-filters { padding: 10px; }
+  .toolbar .select { flex: 1 1 100%; }
+  .toolbar__count { margin-left: 0; }
+
+  /* Thinner bezel on phones; the grid stays at 3 columns. */
+  .pokedex-device__screen { margin: 22px 6px 0; padding: 8px; box-shadow: var(--bezel-ring-sm); }
+  .dex-regions { gap: 2px; }
+  .dex-regions > .chip-btn { min-height: 32px; padding: 3px 8px; font-size: 0.8125rem; }
+  .dex-region-heading { padding: 8px 4px; gap: 8px; }
+  .dex-region-heading h2 { font-size: 1.25rem; }
+  .dex-region-heading span { font-size: 0.75rem; }
+  .dex-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .specimen-card { padding: 5px 5px 7px; gap: 3px; }
+  .specimen-card__num { font-size: 0.625rem; padding: 1px 3px 0; }
+  .specimen-card__name { font-size: 0.8125rem; }
+  .specimen-card .type-chip { font-size: 0.625rem; padding: 0 4px; letter-spacing: 0.02em; }
+  .owned-badge { width: 18px; height: 18px; top: 4px; right: 4px; }
+  .owned-badge svg { width: 10px; height: 10px; }
+
+  /* Detail sheet fills the screen as one scrolling column. */
+  .drawer--detail {
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    transform: none;
+    width: auto;
+    max-height: none;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    grid-template-areas: "name" "left" "sheet";
+    padding: 10px 10px 20px;
+  }
+  .detail__namebar { border-radius: var(--radius-sm); box-shadow: inset 0 -4px 0 var(--dex-red-dark), var(--shadow-sm); }
+  .drawer--detail .drawer__name { font-size: var(--text-lg); }
+  .detail__left { padding: 16px 6px 6px; gap: 14px; }
+  .detail__screen { aspect-ratio: auto; height: 230px; padding: 34px 12px 12px; box-shadow: var(--bezel-ring-sm); }
+  .detail__screen img { width: auto; max-width: 100%; height: 180px; }
+  .drawer__actions .btn { flex: 1 1 auto; }
+  .detail__sheet { margin-top: 16px; border-top: var(--line) solid var(--ink); border-radius: var(--radius-fallback); padding: 12px; }
+  .stat-row { grid-template-columns: 4.25rem minmax(0, 1fr) 2.5rem; gap: 8px; }
+  .detail__stats, .matchup-grid { margin: 0 6px; padding: 6px 10px; }
+}
+
+/* ===================================================== bevelled corners */
+
+@supports (corner-shape: bevel) {
+  .pokedex-device, .dex-filters, .pokedex-device__screen, .dex-regions,
+  .specimen-card, .drawer--detail, .detail__screen, .detail__stats, .matchup-grid {
+    border-radius: var(--radius);
+    corner-shape: bevel;
+  }
+  .pokedex-device__gen-card, .pokedex-device__counter, .toolbar__count {
+    border-radius: var(--radius-sm);
+    corner-shape: bevel;
+  }
+  .detail__namebar { border-radius: 5px 5px 0 0; corner-shape: bevel; }
+  .detail__sheet { border-radius: 0 0 var(--radius) var(--radius); corner-shape: bevel; }
+}
+@media (max-width: 720px) {
+  @supports (corner-shape: bevel) {
+    .detail__namebar { border-radius: var(--radius-sm); }
+    .detail__sheet { border-radius: var(--radius); }
+  }
+}
