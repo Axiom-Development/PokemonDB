@@ -8,98 +8,40 @@
    never decorative: the 18 type colors are the one wayfinding system in
    the whole app. */
 
-@font-face {
-  font-family: "Big Shoulders";
-  src: url("/fonts/BigShoulders-Variable.woff2") format("woff2-variations");
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "IBM Plex Sans";
-  src: url("/fonts/IBMPlexSans-Variable.woff2") format("woff2-variations");
-  font-weight: 100 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "IBM Plex Mono";
-  src: url("/fonts/IBMPlexMono-Regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "IBM Plex Mono";
-  src: url("/fonts/IBMPlexMono-Medium.woff2") format("woff2");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
+/* Legacy semantic tokens, mapped onto the device palette in tokens.css. */
 :root {
-  --ink: var(--neutral-16231f);
-  --ink-raised: var(--neutral-1e2e29);
-  --ink-raised-2: var(--neutral-253a33);
-  --parchment: var(--neutral-f2eede);
-  --parchment-dim: var(--neutral-e7e0c9);
-  --parchment-line: rgba(22, 35, 31, 0.14);
-  --ink-line: rgba(242, 238, 222, 0.14);
-  --moss: #3c6e52;
-  --moss-dark: #2b5240;
-  --moss-tint: var(--neutral-e4ece6);
-  --amber: #c97f1f;
-  --amber-dark: #96600f;
-  --amber-tint: var(--neutral-f6e9d3);
-  --ember: #b23a26;
-  --ember-tint: var(--neutral-f5ded9);
-  --slate: var(--neutral-51625b);
-  --paper-text: var(--neutral-182620);
-  --ink-text: var(--neutral-eef1ea);
-  --ink-text-dim: var(--neutral-aebcb5);
-
-  --font-display: "Big Shoulders", "Arial Narrow", sans-serif;
-  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, "Consolas", monospace;
-
-  --text-xs: 0.75rem;
-  --text-sm: 0.8125rem;
-  --text-base: 0.9375rem;
-  --text-md: 1.0625rem;
-  --text-lg: 1.3rem;
-  --text-xl: 1.7rem;
-  --text-2xl: 2.3rem;
-  --text-3xl: 3.4rem;
-
-  --radius-sm: 4px;
-  --radius-md: 7px;
-  --rail-w: 15rem;
-  --topbar-h: 4.75rem;
-
-  --shadow-drawer: -12px 0 32px rgba(10, 16, 14, 0.28);
-  --focus-ring: 0 0 0 3px rgba(201, 127, 31, 0.55);
-}
-
-/* type colors -- the app's one deliberate color system */
-:root {
-  --t-normal: var(--neutral-a3a380);
-  --t-fire: #e0632c;
-  --t-water: #3b82c4;
-  --t-electric: #c99312;
-  --t-grass: #4c9a4a;
-  --t-ice: #4fa9b1;
-  --t-fighting: #b2473a;
-  --t-poison: #9a4fb0;
-  --t-ground: #ad8142;
-  --t-flying: #7c93c4;
-  --t-psychic: #cf5178;
-  --t-bug: #83971f;
-  --t-rock: #a08847;
-  --t-ghost: #6e5a9e;
-  --t-dragon: #5a4fcf;
-  --t-dark: var(--neutral-5b5344);
-  --t-steel: #74909c;
-  --t-fairy: #cf84ab;
+  --parchment: var(--bezel);
+  --parchment-dim: var(--bezel-dark);
+  --parchment-line: var(--ink);
+  --paper-text: var(--ink);
+  --slate: var(--ink-soft);
+  --surface: var(--bezel);
+  --cream: var(--bezel);
+  --red: var(--dex-red);
+  --red-dark: var(--dex-red-dark);
+  --font-body: var(--font-ui);
+  --font-mono: var(--font-lcd);
+  --moss: var(--lcd-dark);
+  --moss-dark: var(--lcd-dark);
+  --moss-tint: var(--lcd);
+  --amber: var(--dex-red);
+  --amber-dark: var(--dex-red-dark);
+  --amber-tint: var(--bezel-dark);
+  --ember: var(--bad);
+  --ember-tint: var(--bad-bg);
+  --ink-raised: var(--dex-red-dark);
+  --ink-text: var(--white);
+  --ink-text-dim: var(--white);
+  --ink-line: rgba(255, 255, 255, 0.35);
+  --blue-deep: var(--blue);
+  --blue-night: var(--lcd-dark);
+  --yellow-soft: var(--bezel-dark);
+  --yellow-dark: var(--dex-red-dark);
+  --radius-md: 8px;
+  --radius-lg: 8px;
+  --text-xs: 0.8rem;
+  --shadow-drawer: -4px 0 0 var(--ink);
+  --rail-w: 13.5rem;
 }
 
 * { box-sizing: border-box; }
