@@ -61,7 +61,7 @@ function opponentChips(container) {
 
 function resultRow(r, rank) {
   const row = document.createElement("div");
-  row.className = "result-card";
+  row.className = "result-card result-card--ranked";
   const rankEl = document.createElement("div");
   rankEl.className = "result-card__rank";
   rankEl.textContent = "#" + rank;
@@ -99,16 +99,19 @@ function resultRow(r, rank) {
   mid.appendChild(explain);
   row.appendChild(mid);
 
-  const right = document.createElement("div");
-  right.className = "result-card__score";
-  right.textContent = (r.score >= 0 ? "+" : "") + r.score.toFixed(1);
-  right.title = "Combined type + stat score (see README for formula)";
-  row.appendChild(right);
+  // Score and action share one trailing grid cell -- as separate children
+  // they overflowed the grid and wrapped onto a second row.
+  const actions = document.createElement("div");
+  actions.className = "result-card__actions";
+  const score = document.createElement("div");
+  score.className = "result-card__score";
+  score.textContent = (r.score >= 0 ? "+" : "") + r.score.toFixed(1);
+  score.title = "Combined type + stat score (see README for formula)";
+  actions.appendChild(score);
 
   const addBtn = document.createElement("button");
   addBtn.className = "btn btn-ghost btn-sm";
   addBtn.textContent = "Add to a team";
-  addBtn.style.marginLeft = "0.5rem";
   addBtn.addEventListener("click", async () => {
     try {
       const { teams } = await api.get("/api/teams");
@@ -121,7 +124,8 @@ function resultRow(r, rank) {
       toast(e.message || "Sign in to use teams.");
     }
   });
-  row.appendChild(addBtn);
+  actions.appendChild(addBtn);
+  row.appendChild(actions);
 
   return row;
 }

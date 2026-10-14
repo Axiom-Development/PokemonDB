@@ -655,6 +655,10 @@ h1, h2, h3, p { margin: 0; }
 .result-card__name { font-family: var(--font-display); font-weight: 700; font-size: var(--text-md); }
 .result-card__explain { font-size: var(--text-sm); color: var(--slate); margin-top: 0.15rem; }
 .result-card__score { font-family: var(--font-mono); font-weight: 600; text-align: right; }
+/* Battle-planner ranking rows add a leading rank column and a trailing
+   score + action stack. */
+.result-card--ranked { grid-template-columns: 2.25rem 3.5rem 1fr auto; }
+.result-card__actions { display: flex; flex-direction: column; align-items: flex-end; gap: 0.4rem; }
 
 .replacement-card { border-left: 3px solid var(--amber); }
 
@@ -697,6 +701,8 @@ h1, h2, h3, p { margin: 0; }
   .vs-row { grid-template-columns: 1fr; }
   .result-card { grid-template-columns: 3rem 1fr; }
   .result-card__score { grid-column: 2; text-align: left; }
+  .result-card--ranked { grid-template-columns: 2rem 3rem 1fr; }
+  .result-card--ranked .result-card__actions { grid-column: 3; flex-direction: row; align-items: center; justify-content: space-between; }
 }
 
 .visually-hidden {

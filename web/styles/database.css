@@ -435,6 +435,9 @@ a.btn { text-decoration: none; }
 .drawer__close svg { width: 60%; height: 60%; }
 .drawer__name { font-family: var(--font-display); font-weight: 400; color: var(--white); text-shadow: 2px 2px 0 var(--ink); }
 .drawer__head .drawer__name { font-size: 1.4rem; }
+/* The specimen sheet repeats the name in the white body, where the
+   white-on-red header treatment would vanish. */
+.drawer__body .drawer__name { color: var(--ink); text-shadow: none; }
 .drawer__art { background: var(--cream-deep); border: var(--line-sm) solid var(--ink); border-radius: var(--radius-sm); }
 .drawer__genus { color: var(--slate); }
 
