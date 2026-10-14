@@ -25,8 +25,7 @@ function memberCard(num, { onRemove }) {
   img.style.width = "3.5rem";
   slot.appendChild(img);
   const name = document.createElement("div");
-  name.style.fontWeight = "600";
-  name.style.fontSize = "0.85rem";
+  name.className = "team-slot__name";
   name.textContent = p.name;
   slot.appendChild(name);
   slot.appendChild(typeChipsRow(p.types));
@@ -267,18 +266,19 @@ async function renderEditor(root) {
 
 function teamSummaryCard(team) {
   const card = document.createElement("div");
-  card.className = "panel";
+  card.className = "panel team-card";
+  // Red title bar: team name + Edit/Delete keys; the summary sits below it.
   const head = document.createElement("div");
-  head.style.display = "flex";
-  head.style.justifyContent = "space-between";
-  head.style.alignItems = "center";
-  head.innerHTML = `<div>
-    <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.2rem">${team.name}</h3>
-    <p class="field__hint">${team.mode === "owned" ? "Owned-only" : "Manual"} · ${team.members.length}/6 members</p>
-  </div>`;
+  head.className = "panel__titlebar";
+  const title = document.createElement("h3");
+  title.className = "panel__title";
+  title.textContent = team.name;
+  head.appendChild(title);
+  const meta = document.createElement("p");
+  meta.className = "field__hint";
+  meta.textContent = `${team.mode === "owned" ? "Owned-only" : "Manual"} · ${team.members.length}/6 members`;
   const actions = document.createElement("div");
-  actions.style.display = "flex";
-  actions.style.gap = "0.4rem";
+  actions.className = "team-card__actions";
   const editBtn = document.createElement("button");
   editBtn.className = "btn btn-ghost btn-sm";
   editBtn.textContent = "Edit";
@@ -310,20 +310,15 @@ function teamSummaryCard(team) {
   });
   actions.append(editBtn, delBtn);
   head.appendChild(actions);
-  card.appendChild(head);
+  card.append(head, meta);
 
   const thumbs = document.createElement("div");
-  thumbs.style.display = "flex";
-  thumbs.style.gap = "0.4rem";
-  thumbs.style.marginTop = "0.6rem";
+  thumbs.className = "team-card__thumbs";
   for (const m of team.members) {
     const img = document.createElement("img");
     img.src = imageSrc(m);
     img.alt = m.name;
     img.title = m.name;
-    img.style.width = "3rem";
-    img.style.background = "var(--parchment-dim)";
-    img.style.borderRadius = "var(--radius-sm)";
     thumbs.appendChild(img);
   }
   if (!team.members.length) {

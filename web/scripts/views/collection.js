@@ -54,7 +54,7 @@ export async function renderCollection(root) {
     let owned = state.pokemon.filter((p) => p.owned);
     if (q) owned = owned.filter((p) => p.name.toLowerCase().includes(q) || String(p.pokedex_number).includes(q));
     owned.sort((a, b) => a.pokedex_number - b.pokedex_number);
-    count.textContent = `${owned.length.toLocaleString()} caught`;
+    count.innerHTML = `<span class="lcd-num">${owned.length.toLocaleString()}</span> caught`;
     grid.textContent = "";
     if (owned.length === 0) {
       grid.innerHTML = `<div class="empty-state">

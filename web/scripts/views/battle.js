@@ -318,7 +318,7 @@ export async function renderBattle(root) {
 
   const tabs = document.createElement("div");
   tabs.className = "tab-row";
-  tabs.innerHTML = `<h2 style="font-family:var(--font-display);font-weight:700;font-size:1.4rem;margin-right:auto">Ranked counters</h2>`;
+  tabs.innerHTML = `<h2 class="section-title">Ranked counters</h2>`;
   root.appendChild(tabs);
 
   const tabRow = document.createElement("div");
@@ -351,7 +351,7 @@ export async function renderBattle(root) {
   resultsBox.innerHTML = `<div class="empty-state"><p class="empty-state__title">Choose an opponent</p><p>Pick a single Pokémon or build an opposing team, then rank counters.</p></div>`;
 
   const genHeader = document.createElement("h2");
-  genHeader.style.cssText = "font-family:var(--font-display);font-weight:700;font-size:1.4rem;margin:2rem 0 0.75rem";
+  genHeader.className = "section-title";
   genHeader.textContent = "Generate a complementary team";
   root.appendChild(genHeader);
 
@@ -392,7 +392,7 @@ export async function renderBattle(root) {
 
   if (state.user) {
     const checkHeader = document.createElement("h2");
-    checkHeader.style.cssText = "font-family:var(--font-display);font-weight:700;font-size:1.4rem;margin:2rem 0 0.75rem";
+    checkHeader.className = "section-title";
     checkHeader.textContent = "Check a saved team against this opponent";
     root.appendChild(checkHeader);
 

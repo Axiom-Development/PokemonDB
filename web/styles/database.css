@@ -491,6 +491,337 @@
 .matchup-row__types { display: flex; flex-wrap: wrap; gap: 4px; }
 .mult-4 .matchup-row__mult, .mult-2 .matchup-row__mult { color: var(--bad); }
 
+/* ============================================================ collection */
+
+.view > .toolbar { margin-bottom: 26px; }
+/* The collection grid sits on its own LCD screen. */
+.view > .dex-grid {
+  margin: 0 10px 10px;
+  padding: 14px;
+  background: var(--scanlines), var(--lcd);
+  color: var(--lcd-dark);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: var(--bezel-ring);
+}
+.view > .dex-grid > .empty-state { margin: 0; box-shadow: none; }
+
+/* =========================================================== team builder */
+
+#teams-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 26rem), 1fr));
+  align-items: start;
+  gap: 16px;
+}
+#teams-list > .btn { grid-column: 1 / -1; justify-self: start; margin-bottom: 4px !important; }
+#teams-list > .empty-state { grid-column: 1 / -1; }
+#teams-list > .panel + .panel { margin-top: 0; }
+.team-card__actions { display: flex; gap: 8px; }
+.team-grid > .panel + .panel { margin-top: 0; }
+.team-grid > .panel + .panel { margin-top: 0; }
+.team-card .field__hint { margin-top: 2px; }
+.team-card__thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 18px 8px 10px;
+  padding: 8px;
+  background: var(--scanlines), var(--lcd);
+  color: var(--lcd-dark);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: var(--bezel-ring-sm);
+}
+.team-card__thumbs img {
+  width: 3rem;
+  height: 3rem;
+  object-fit: contain;
+  background: var(--bezel);
+  border: var(--line-sm) solid var(--ink);
+  border-radius: var(--radius-chip);
+}
+
+/* Six team slots on one LCD screen (editor + generated counter teams). */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.panel > .team-grid,
+#battle-generate-results > .team-grid {
+  margin: 10px;
+  padding: 12px;
+  background: var(--scanlines), var(--lcd);
+  color: var(--lcd-dark);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: var(--bezel-ring);
+}
+#battle-generate-results > .team-grid { margin: 18px 10px 10px; }
+.team-slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 9.5rem;
+  padding: 10px;
+  background: transparent;
+  color: var(--lcd-dark);
+  border: var(--line-sm) dashed var(--lcd-dark);
+  border-radius: var(--radius-fallback);
+  font: inherit;
+  text-align: center;
+}
+button.team-slot { cursor: pointer; }
+button.team-slot:hover:not(:disabled) { background: var(--lcd-line); }
+.team-slot__add { font-weight: 700; font-size: 0.9375rem; }
+.team-slot.is-filled {
+  background: var(--bezel);
+  color: var(--ink);
+  border: var(--line-sm) solid var(--ink);
+  box-shadow: var(--shadow-sm);
+}
+.team-slot__name { font-weight: 700; font-size: 0.9375rem; overflow-wrap: anywhere; }
+.team-slot .field__hint { font-size: 0.8125rem; }
+.team-slot__remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: var(--bad-bg);
+  color: var(--bad);
+  border: var(--line-sm) solid var(--ink);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+.team-slot__remove:active { transform: translateY(1px); box-shadow: 0 1px 0 var(--ink); }
+.team-slot__remove svg { width: 14px; height: 14px; }
+.unowned-flag {
+  font-size: var(--text-label);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--dex-red-dark);
+}
+
+/* Offensive coverage readout. */
+.coverage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+  gap: 6px;
+  margin: 0 8px;
+  padding: 10px;
+  background: var(--scanlines), var(--lcd);
+  color: var(--lcd-dark);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: var(--bezel-ring-sm);
+}
+.coverage-cell {
+  padding: 5px 6px 6px;
+  border: var(--line-sm) solid var(--lcd-line);
+  border-radius: var(--radius-chip);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-align: center;
+}
+.coverage-cell__mult {
+  display: block;
+  margin-top: 3px;
+  font-family: var(--font-lcd);
+  font-size: 0.9375rem;
+  line-height: 1;
+}
+
+/* ========================================================= battle planner */
+
+.vs-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 16px 24px;
+  padding: 16px;
+  background: var(--bezel);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: var(--shadow);
+}
+.vs-row .field__label { display: block; }
+.vs-mark {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  line-height: 1;
+  color: var(--dex-red);
+  text-shadow: 3px 3px 0 var(--ink);
+}
+.opponent-slots { display: flex; flex-wrap: wrap; gap: 8px; }
+.opponent-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 4px;
+  background: var(--lcd);
+  color: var(--lcd-dark);
+  border: var(--line-sm) solid var(--ink);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  font-weight: 700;
+}
+.opponent-chip img { width: 32px; height: 32px; object-fit: contain; }
+.opponent-chip button {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  background: var(--bezel);
+  color: var(--ink);
+  border: var(--line-sm) solid var(--ink);
+  border-radius: var(--radius-chip);
+  cursor: pointer;
+}
+.opponent-chip button svg { width: 12px; height: 12px; }
+.tab-row { display: flex; align-items: center; gap: 8px; margin: 28px 0 12px; }
+.tab-row .section-title { margin: 0 auto 0 0; }
+
+/* Ranked counters / picker results: rows on an LCD readout. */
+#battle-results:has(> .result-card) {
+  margin: 10px;
+  padding: 4px 14px;
+  background: var(--scanlines), var(--lcd);
+  color: var(--lcd-dark);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: var(--bezel-ring);
+}
+.result-card {
+  display: grid;
+  grid-template-columns: 3.5rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 4px;
+  background: transparent;
+  color: var(--lcd-dark);
+  border: none;
+  border-radius: 0;
+  font: inherit;
+  text-align: left;
+}
+.result-card + .result-card { border-top: var(--line-sm) solid var(--lcd-line); }
+button.result-card { cursor: pointer; }
+button.result-card:hover { background: var(--lcd-line); }
+.result-card--ranked { grid-template-columns: 2.75rem 3.5rem minmax(0, 1fr) auto; }
+.result-card__rank { font-family: var(--font-lcd); font-size: 1rem; }
+.result-card__art {
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  background: var(--bezel);
+  border: var(--line-sm) solid var(--ink);
+  border-radius: var(--radius-sm);
+}
+.result-card__art img { width: 88%; height: 88%; object-fit: contain; }
+.result-card__name { font-weight: 700; font-size: 1.0625rem; overflow-wrap: anywhere; }
+.result-card .specimen-card__types { margin-top: 4px; }
+.result-card__explain { margin-top: 5px; font-size: var(--text-sm); color: var(--lcd-dark); }
+.result-card__score { font-family: var(--font-lcd); font-size: 1.25rem; line-height: 1; text-align: right; }
+.result-card__actions { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+/* "Owned" marker: a bordered tag, not colour alone. */
+.result-card--ranked .field__hint {
+  padding: 0 6px;
+  border: var(--line-sm) solid var(--lcd-dark);
+  border-radius: var(--radius-chip);
+  color: var(--lcd-dark);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.replacement-card {
+  padding-left: 26px;
+  box-shadow: inset 8px 0 0 var(--yellow), inset 10px 0 0 var(--ink), var(--shadow);
+}
+.replacement-card .field__hint { margin-top: 4px; }
+.tradeoff-list { margin-top: 4px; font-size: 0.8125rem; color: var(--ink-soft); }
+
+/* ================================================================ account */
+
+.auth-wrap { max-width: 26rem; margin: 28px auto; }
+.auth-wrap .panel { padding: 16px 20px 20px; }
+.auth-wrap .panel > .view-title {
+  margin-top: -16px;
+  margin-left: -20px;
+  margin-right: -20px;
+  padding: 12px 20px 16px;
+  background: var(--dex-red);
+  border-bottom: var(--line) solid var(--ink);
+  border-radius: 3px 3px 0 0;
+  box-shadow: inset 0 -4px 0 var(--dex-red-dark), inset 0 2px 0 var(--dex-red-glint);
+  font-size: var(--text-xl);
+}
+.auth-wrap .view-subtitle {
+  display: block;
+  margin-top: 14px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--ink-soft);
+  font-size: 0.9375rem;
+}
+.auth-switch { margin-top: 16px; text-align: center; font-size: 0.9375rem; color: var(--ink-soft); }
+
+.account-stat { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+.account-stat__count {
+  margin: 10px 8px 12px;
+  min-width: 4ch;
+  padding: 10px 14px 8px;
+  background: var(--scanlines), var(--lcd);
+  color: var(--lcd-dark);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: var(--bezel-ring-sm);
+  font-size: 2.25rem;
+  line-height: 1;
+  text-align: right;
+}
+
+/* ====================================================== phones (screens) */
+
+@media (max-width: 720px) {
+  .view > .dex-grid { margin: 0 6px 6px; padding: 8px; box-shadow: var(--bezel-ring-sm); }
+  .team-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .panel > .team-grid, #battle-generate-results > .team-grid { margin: 8px 6px; padding: 8px; box-shadow: var(--bezel-ring-sm); }
+  .team-slot { min-height: 8.5rem; padding: 8px; }
+  .mode-toggle { display: flex; }
+  .mode-toggle button { flex: 1 1 auto; }
+  .mode-toggle { display: flex; }
+  .mode-toggle button { flex: 1 1 auto; }
+  .vs-row { grid-template-columns: minmax(0, 1fr); padding: 12px; }
+  .vs-mark { font-size: var(--text-xl); }
+  #battle-results:has(> .result-card) { margin: 8px 6px; padding: 2px 10px; box-shadow: var(--bezel-ring-sm); }
+  .result-card { grid-template-columns: 3rem minmax(0, 1fr); gap: 10px; }
+  .result-card__art { width: 3rem; height: 3rem; }
+  .result-card--ranked { grid-template-columns: 2.25rem 3rem minmax(0, 1fr); }
+  .result-card--ranked .result-card__actions {
+    grid-column: 2 / -1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .auth-wrap { margin: 8px auto; }
+}
+
 /* ===================================================== phones (Pokédex) */
 
 @media (max-width: 720px) {
@@ -559,7 +890,16 @@
     border-radius: var(--radius-sm);
     corner-shape: bevel;
   }
-  .detail__namebar { border-radius: 5px 5px 0 0; corner-shape: bevel; }
+  .view > .dex-grid, .team-card__thumbs, .panel > .team-grid, #battle-generate-results > .team-grid,
+  .team-slot, .coverage-grid, .vs-row, #battle-results:has(> .result-card), .account-stat__count {
+    border-radius: var(--radius);
+    corner-shape: bevel;
+  }
+  .opponent-chip, .team-slot__remove, .result-card__art {
+    border-radius: var(--radius-sm);
+    corner-shape: bevel;
+  }
+  .detail__namebar, .auth-wrap .panel > .view-title { border-radius: 5px 5px 0 0; corner-shape: bevel; }
   .detail__sheet { border-radius: 0 0 var(--radius) var(--radius); corner-shape: bevel; }
 }
 @media (max-width: 720px) {

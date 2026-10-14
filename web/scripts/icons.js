@@ -1,5 +1,5 @@
-// Hand-drawn inline SVG icons (24px grid, ~2px ink strokes) for the GBA
-// Pokédex device skin. Only icons the app actually uses -- no icon-font, no library.
+// Hand-drawn inline SVG icons (24px grid, ~2px ink strokes) for the Pokédex
+// device skin. Only icons the app actually uses -- no icon-font, no library.
 const SVG_NS = "http://www.w3.org/2000/svg";
 
 function svg(viewBox, inner, extraClass) {
