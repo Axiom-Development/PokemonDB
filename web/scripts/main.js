@@ -1,10 +1,14 @@
 import { inject } from 'https://cdn.jsdelivr.net/npm/@vercel/analytics@2/dist/index.mjs';
+import { injectSpeedInsights } from 'https://cdn.jsdelivr.net/npm/@vercel/speed-insights@1/dist/index.mjs';
 import { setupContextMenu } from "./components/contextmenu.js";
 import { state, subscribe, refreshMe, refreshCollection } from "./state.js";
 import { startRouter } from "./router.js";
 
 // Initialize Vercel Web Analytics
 inject();
+
+// Initialize Vercel Speed Insights
+injectSpeedInsights();
 
 function renderTopbarAccount() {
   const mount = document.getElementById("topbar-account");
