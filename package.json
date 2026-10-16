@@ -1,0 +1,31 @@
+{
+  "name": "pokemondb",
+  "version": "1.0.0",
+  "description": "A local web app for exploring the Pokédex, building a personal collection, planning teams, and scouting type match-ups. Built with a Python standard-library HTTP server, SQLite, and a buildless HTML/CSS/JS frontend -- no npm install, no build step, no external services.",
+  "type": "module",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "python -m unittest discover -s tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Axiom-Development/PokemonDB.git"
+  },
+  "keywords": [
+    "pokemon",
+    "pokedex",
+    "team-builder",
+    "battle-planner"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Axiom-Development/PokemonDB/issues"
+  },
+  "homepage": "https://github.com/Axiom-Development/PokemonDB#readme",
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1"
+  }
+}

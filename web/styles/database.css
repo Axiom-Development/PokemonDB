@@ -1,511 +1,910 @@
-/* "Who's That Pokémon?" skin -- a GBA-era (FireRed/LeafGreen) menu system
-   crossed with the anime's title-card reveal. Loaded after main.css, which
-   owns layout/structure. Light theme only. Chunky, solid, outlined,
-   printed-sticker UI -- no gradients except hard stripes, no blur, no
-   glow, no purple. */
+/* PokemonDB -- database screens on the Pokédex device: the browse grid on
+   one LCD screen, the two-panel detail sheet, readouts for teams, battle
+   results and account counts. Builds on tokens.css + main.css. */
 
-@font-face {
-  font-family: "Lilita One";
-  src: url("/fonts/LilitaOne-Regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Rubik";
-  src: url("/fonts/Rubik-Variable.woff2") format("woff2-variations");
-  font-weight: 300 900;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Silkscreen";
-  src: url("/fonts/Silkscreen-Regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Silkscreen";
-  src: url("/fonts/Silkscreen-Bold.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
+/* ======================================================= Pokédex device
+   Red device frame: lens + title + live LCD counter, generation progress
+   cards, the filter controls, then ONE LCD screen holding every region's
+   grid. All readouts come from real dataset/collection state. */
 
-:root {
-  /* -- brand primitives, exact values from the brief -- */
-  --yellow: #FFCB05;
-  --yellow-soft: #FFE27A;
-  --yellow-dark: #C79A00;
-  --blue: #2A75BB;
-  --blue-deep: #3C5AA6;
-  --blue-ray: #4A90D0;
-  --blue-night: #22427F;
-  --red: #EE1515;
-  --red-dark: #CC0000;
-  --cream: #FFF9E6;
-  --cream-deep: #F6EBC8;
-  --white: #FFFFFF;
-  --good: #1F7A3A;
-  --good-bg: #E3F4E5;
-  --bad: #B00F0F;
-  --bad-bg: #FDE6E4;
-
-  /* -- the 18 type colours, used only as identifying fills/dots -- */
-  --t-normal: #A8A878;
-  --t-fire: #F08030;
-  --t-water: #6890F0;
-  --t-electric: #F8D030;
-  --t-grass: #78C850;
-  --t-ice: #98D8D8;
-  --t-fighting: #C03028;
-  --t-poison: #A040A0;
-  --t-ground: #E0C068;
-  --t-flying: #A890F0;
-  --t-psychic: #F85888;
-  --t-bug: #A8B820;
-  --t-rock: #B8A038;
-  --t-ghost: #705898;
-  --t-dragon: #7038F8;
-  --t-dark: #705848;
-  --t-steel: #B8B8D0;
-  --t-fairy: #EE99AC;
-
-  /* -- map the app's existing semantic tokens onto the new palette, so
-     every component built against them (main.css) picks it up for free -- */
-  --font-display: "Lilita One", "Arial Narrow", sans-serif;
-  --font-body: "Rubik", "Segoe UI", system-ui, sans-serif;
-  --font-mono: "Silkscreen", ui-monospace, "Consolas", monospace;
-
-  --ink: #222224;
-  --ink-raised: var(--blue-deep);
-  --ink-raised-2: var(--blue-night);
-  --ink-text: var(--white);
-  --ink-text-dim: var(--cream);
-  --ink-line: rgba(255, 255, 255, 0.35);
-
-  --parchment: var(--cream);
-  --parchment-dim: var(--cream-deep);
-  /* Card/panel surfaces (as opposed to --white, used for text/decorative
-     fills on colour -- keeping them separate is what lets dark mode darken
-     card backgrounds without also darkening white text on blue/red chrome). */
-  --surface: var(--white);
-  --parchment-line: var(--ink);
-  --paper-text: var(--ink);
-  --slate: #55555C;
-
-  --moss: var(--blue-deep);
-  --moss-dark: var(--blue-night);
-  --moss-tint: var(--blue-ray);
-  --amber: var(--red);
-  --amber-dark: var(--red-dark);
-  --amber-tint: var(--yellow-soft);
-  --ember: var(--bad);
-  --ember-tint: var(--bad-bg);
-
-  --focus-ring: 0 0 0 3px var(--yellow), 0 0 0 6px var(--blue-deep);
-  --shadow-drawer: -4px 0 0 var(--ink);
-
-  --rail-w: 13.5rem;
-  --topbar-h: 4.5rem;
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 14px;
-
-  --line: 3px;
-  --line-sm: 2px;
-  --press: 4px;
-}
-
-body {
-  font-synthesis: none;
-  background:
-    repeating-linear-gradient(-45deg, transparent 0 14px, rgba(34, 34, 36, 0.035) 14px 28px),
-    var(--cream);
-}
-
-:focus-visible {
-  box-shadow: var(--focus-ring);
-  border-radius: var(--radius-sm);
-}
-
-h1, h2, h3 { font-family: var(--font-display); font-weight: 400; }
-
-/* ---------------------------------------------------------------- scrollbar
-   Only the content column scrolls (see main.css #view) so the themed
-   scrollbar starts right under the header ribbon, not at the viewport top. */
-.view, .drawer, .modal-dialog {
-  scrollbar-color: var(--blue) var(--cream-deep);
-  scrollbar-width: auto;
-}
-.view::-webkit-scrollbar, .drawer::-webkit-scrollbar, .modal-dialog::-webkit-scrollbar { width: 16px; }
-.view::-webkit-scrollbar-track, .drawer::-webkit-scrollbar-track, .modal-dialog::-webkit-scrollbar-track {
-  background: var(--cream-deep);
-  border-left: var(--line-sm) solid var(--ink);
-}
-.view::-webkit-scrollbar-thumb, .drawer::-webkit-scrollbar-thumb, .modal-dialog::-webkit-scrollbar-thumb {
-  background: var(--blue);
-  border: var(--line-sm) solid var(--ink);
-  border-radius: var(--radius-md);
-  box-shadow: inset 3px 0 0 var(--blue-ray), inset -3px 0 0 var(--blue-deep);
-}
-.view::-webkit-scrollbar-thumb:hover, .drawer::-webkit-scrollbar-thumb:hover, .modal-dialog::-webkit-scrollbar-thumb:hover { background: var(--blue-deep); }
-.view::-webkit-scrollbar-thumb:active, .drawer::-webkit-scrollbar-thumb:active, .modal-dialog::-webkit-scrollbar-thumb:active { background: var(--yellow); }
-
-/* -------------------------------------------------------------------- shell
-   The rail stands in for the GBA header/nav bar (desktop keeps a sidebar
-   layout; the exact header spec is applied almost verbatim to the mobile
-   tab bar below, since that *is* a horizontal nav bar). */
-.rail {
-  background: var(--blue);
-  padding: 1.1rem 0.85rem;
-  gap: 1.3rem;
-  border-right: var(--line) solid var(--ink);
-  box-shadow: inset -8px 0 0 var(--blue-deep), inset -11px 0 0 var(--yellow);
-}
-.rail__brand { gap: 0.5rem; padding: 0 0.3rem; }
-.rail__brand-name {
-  font-size: 1.4rem;
-  color: var(--yellow);
-  -webkit-text-stroke: 3px var(--blue-night);
-  paint-order: stroke fill;
-  text-shadow: 0 3px 0 var(--ink);
-  letter-spacing: 0.01em;
-}
-.rail__nav { gap: 0.4rem; }
-.rail__link {
-  color: var(--white);
-  font-weight: 700;
-  font-size: 0.95rem;
-  border: var(--line-sm) solid transparent;
-  border-radius: var(--radius-sm);
-  padding: 0.6rem 0.7rem;
-}
-.rail__link:hover { background: var(--blue-deep); border-color: var(--ink); }
-.rail__link.is-active {
-  background: var(--yellow);
-  color: var(--ink);
-  border-color: var(--ink);
-  box-shadow: 0 2px 0 var(--ink);
-}
-.rail__footer { border-top-color: var(--ink-line); color: var(--cream); }
-.rail__user-name { color: var(--white); }
-
-.topbar { background: var(--blue); border-bottom: var(--line) solid var(--ink); box-shadow: inset 0 -5px 0 var(--yellow), inset 0 -8px 0 var(--blue-deep); }
-.topbar__search { background: var(--cream); }
-#topbar-account { color: var(--white); font-weight: 700; }
-
-.view-title {
-  color: var(--yellow);
-  -webkit-text-stroke: 6px var(--blue-deep);
-  paint-order: stroke fill;
-  text-shadow: 0 4px 0 var(--ink);
-  font-size: 2.6rem;
-  letter-spacing: 0.01em;
-}
-.view-subtitle { color: var(--slate); }
-
-/* -------------------------------------------------------------------- forms */
-.input, .select {
-  background: var(--cream);
-  border: var(--line) solid var(--ink);
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  font-size: 1rem;
-  min-height: 46px;
-}
-.input:focus-visible, .select:focus-visible { background: var(--surface); box-shadow: 0 0 0 3px var(--yellow); }
-.select { border-radius: var(--radius-sm); }
-
-.field__label { font-weight: 700; color: var(--ink); }
-.field__error { color: var(--bad); font-weight: 600; }
-
-.btn {
-  border: var(--line) solid var(--ink);
-  border-radius: var(--radius-md);
-  box-shadow: 0 var(--press) 0 var(--ink);
-  min-height: 46px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  transition: none;
-}
-.btn:active:not(:disabled) { transform: translateY(var(--press)); box-shadow: 0 1px 0 var(--ink); }
-.btn-primary { background: var(--yellow); color: var(--ink); }
-.btn-primary:hover { background: var(--yellow-soft); }
-.btn-amber { background: var(--red); color: var(--white); border-color: var(--ink); }
-.btn-amber:hover { background: var(--red-dark); }
-.btn-ghost { background: var(--surface); color: var(--ink); border-color: var(--ink); }
-.btn-ghost:hover { background: var(--cream-deep); }
-.btn-danger { background: var(--surface); color: var(--red-dark); border-color: var(--red-dark); box-shadow: 0 var(--press) 0 var(--red-dark); }
-.btn-danger:active:not(:disabled) { box-shadow: 0 1px 0 var(--red-dark); }
-.btn-danger:hover { background: var(--bad-bg); }
-.btn-sm { box-shadow: 0 2px 0 var(--ink); border-width: var(--line-sm); min-height: 34px; }
-.btn-sm:active:not(:disabled) { box-shadow: 0 1px 0 var(--ink); transform: translateY(2px); }
-.btn:disabled { box-shadow: none; }
-a.btn { text-decoration: none; }
-@media (prefers-reduced-motion: reduce) { .btn:active:not(:disabled) { transform: none; } }
-
-.link-btn { color: var(--blue-deep); font-weight: 700; }
-
-/* ---------------------------------------------------------------- type chips
-   Solid type-colour fill badges -- ink text on light types, white on dark
-   ones (decided in scripts/typecolors.js by relative luminance). */
-.type-chip {
-  background: var(--dot, var(--slate));
-  color: var(--chip-ink, var(--ink));
-  border: var(--line-sm) solid var(--ink);
-  border-radius: 3px;
-  font-weight: 700;
-  font-size: 0.72rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding: 0.15rem 0.5rem;
-}
-.type-chip__dot { display: none; }
-.type-chip.is-selected { background: var(--dot, var(--slate)); border-color: var(--ink); outline: 2px solid var(--ink); outline-offset: 1px; }
-
-/* ---------------------------------------------------------------- chips
-   Segmented-choice look for filter chips (two-part: coloured accent +
-   cream value, matching the "chip" spec). */
-.chip-btn {
-  background: var(--cream);
-  border: var(--line-sm) solid var(--ink);
-  border-radius: var(--radius-sm);
-  font-weight: 700;
-  color: var(--ink);
-}
-.chip-btn.is-active { background: var(--yellow); color: var(--ink); border-color: var(--ink); box-shadow: 0 2px 0 var(--ink); }
-.dex-filters .chip-btn { border-bottom: 4px solid var(--type-color, var(--ink)); }
-.dex-filters .chip-btn.is-active { background: var(--yellow); }
-/* align-items: flex-start -- without it, flex's default "stretch" makes
-   every tab invisibly as tall as the whole wrapped row; only the active
-   tab's (non-transparent) border then reveals that height as a stray
-   vertical line hanging below the tab.
-   padding-bottom overrides main.css's 1.4rem, sized for the old borderless
-   layout -- that much space read as a gap floating beneath the last
-   wrapped tab row (e.g. Paldea alone on row 2). */
-.dex-regions { gap: 0.4rem; align-items: flex-start; padding-bottom: 0.6rem; }
-.dex-regions .chip-btn { border: var(--line-sm) solid transparent; border-radius: var(--radius-sm) var(--radius-sm) 0 0; background: transparent; box-shadow: none; }
-.dex-regions .chip-btn:hover { background: var(--cream-deep); }
-/* A uniform ink border, not a border-bottom colour-matched to the fill --
-   mismatched colours on adjacent sides of a square (non-rounded) corner
-   render with a mitered diagonal seam, which showed up as a small dark
-   notch at the tab's bottom-right corner. */
-.dex-regions .chip-btn.is-active { background: var(--cream-deep); border-color: var(--ink); box-shadow: 0 2px 0 var(--ink); }
-
-.mode-toggle { border: var(--line) solid var(--ink); border-radius: var(--radius-md); background: var(--cream-deep); }
-.mode-toggle button { background: transparent; font-weight: 700; }
-.mode-toggle button.is-active { background: var(--yellow); color: var(--ink); }
-
-/* -------------------------------------------------------------- dex & cards */
-.dex-filters {
-  background: var(--surface);
-  border: var(--line) solid var(--ink);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 var(--press) 0 var(--ink);
-}
-.toolbar__count { color: var(--slate); font-weight: 700; }
-
-.specimen-card, .dex-grid .specimen-card {
-  background: var(--surface);
-  border: var(--line) solid var(--ink);
-  border-radius: var(--radius-sm);
-  box-shadow: 0 var(--press) 0 var(--ink);
-}
-.specimen-card:hover, .dex-grid .specimen-card:hover {
-  border-color: var(--ink);
-  background: var(--cream);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 var(--ink);
-}
-@media (prefers-reduced-motion: reduce) { .specimen-card:hover, .dex-grid .specimen-card:hover { transform: none; } }
-.specimen-card__art { background: var(--cream-deep); border: var(--line-sm) solid var(--ink); border-radius: var(--radius-sm); }
-.specimen-card__num { font-family: var(--font-mono); color: var(--blue-night); font-size: 0.7rem; }
-.specimen-card__name { font-family: var(--font-display); font-weight: 400; }
-.owned-badge { background: var(--good); border: var(--line-sm) solid var(--ink); color: var(--white); }
-.owned-badge svg { width: 60%; height: 60%; }
-
-.empty-state { border: var(--line) dashed var(--ink); border-radius: var(--radius-md); background: var(--surface); }
-.empty-state__title { font-family: var(--font-display); font-weight: 400; }
-
-.dex-region-section { border: var(--line) solid var(--ink); border-radius: var(--radius-lg); background: var(--surface); }
-.dex-region-heading { background: var(--cream-deep); border-bottom: var(--line-sm) solid var(--ink); }
-.dex-region-heading:hover { background: var(--yellow-soft); }
-.dex-region-heading h2 { font-family: var(--font-display); font-weight: 400; color: var(--blue-night); }
-.dex-region-heading::before { color: var(--blue-deep); }
-.dex-region-section > .dex-grid { border-top: var(--line-sm) solid var(--ink); }
-
-/* ------------------------------------------------------------- Pokédex device
-   The lens/counter/generation-progress chrome, all derived from real
-   dataset + collection state (see views/pokedex.js) -- no invented data. */
 .pokedex-device {
-  background: var(--red);
+  margin-bottom: 24px;
+  padding: 14px 14px 22px;
+  background: var(--dex-red);
   border: var(--line) solid var(--ink);
-  border-radius: var(--radius-lg) var(--radius-lg) var(--radius-md) var(--radius-md);
-  box-shadow: inset 0 0 0 4px var(--red-dark), 0 var(--press) 0 var(--ink);
-  padding: 1.1rem 1.1rem 1.4rem;
-  margin-bottom: 1.5rem;
+  border-radius: var(--radius-fallback);
+  box-shadow: inset 0 2px 0 var(--dex-red-glint), inset 0 -8px 0 var(--dex-red-dark), var(--shadow);
 }
-.pokedex-device__top { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
-.pokedex-device__lens {
-  width: 2.75rem;
-  height: 2.75rem;
-  flex: none;
-  border-radius: 50%;
-  background: var(--blue-ray);
-  border: var(--line-sm) solid var(--ink);
-  box-shadow:
-    inset 0 0 0 3px var(--white),
-    inset 0 0 0 6px var(--ink),
-    inset -4px -4px 0 var(--blue-night),
-    inset 4px 4px 0 var(--white);
-}
-.pokedex-device__title-wrap { flex: 1; min-width: 10rem; }
-.pokedex-device__title-wrap .view-subtitle { color: var(--white); text-shadow: 0 1px 0 var(--ink); }
-.pokedex-device__title {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 1.8rem;
-  color: var(--white);
-  text-shadow: 3px 3px 0 var(--ink);
-  margin: 0;
-}
-.pokedex-device__counter {
-  font-family: var(--font-mono);
-  background: #C7E6B8;
-  color: #1D3B17;
-  border: var(--line-sm) solid var(--ink);
-  border-radius: var(--radius-sm);
-  padding: 0.5rem 0.75rem;
-  font-size: 0.95rem;
-  flex: none;
-}
-.pokedex-device__progress {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-.pokedex-device__gen-card {
+.pokedex-device__top {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
-  background: var(--surface);
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  margin-bottom: 16px;
+}
+.pokedex-device__lens {
+  position: relative;
+  flex: none;
+  width: 46px;
+  height: 46px;
+  margin: 7px;
+  border-radius: 50%;
+  background: var(--blue-ray);
+  border: var(--line) solid var(--ink);
+  box-shadow:
+    0 0 0 4px var(--white),
+    0 0 0 7px var(--ink),
+    inset -6px -6px 0 var(--blue);
+}
+.pokedex-device__lens::after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 6px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--white);
+}
+.pokedex-device__title-wrap { flex: 1; min-width: 12rem; }
+.pokedex-device__title {
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  line-height: 1;
+  color: var(--white);
+  text-shadow: 3px 3px 0 var(--ink);
+}
+.pokedex-device__title-wrap .view-subtitle { margin-top: 10px; }
+
+/* Live caught/total counter: a small LCD in its own bezel. */
+.pokedex-device__counter {
+  flex: none;
+  margin: 8px 8px 8px auto;
+  padding: 9px 12px 8px;
+  background: var(--scanlines), var(--lcd);
+  color: var(--lcd-dark);
   border: var(--line-sm) solid var(--ink);
   border-radius: var(--radius-sm);
-  padding: 0.35rem 0.6rem;
-  font-size: 0.75rem;
+  box-shadow: var(--bezel-ring-sm);
+  font-family: var(--font-lcd);
+  font-size: 1.125rem;
+  line-height: 1;
+  white-space: nowrap;
 }
-.pokedex-device__gen-numeral { font-family: var(--font-mono); font-weight: 700; color: var(--blue-night); }
-.pokedex-device__gen-bar { display: inline-block; width: 3.5rem; height: 6px; background: var(--cream-deep); border: 1.5px solid var(--ink); border-radius: 3px; overflow: hidden; }
-.pokedex-device__gen-bar span { display: block; height: 100%; background: var(--blue); }
-.pokedex-device__gen-count { font-family: var(--font-mono); color: var(--slate); }
+
+/* Generation progress: small LCD cards with segmented bars. */
+.pokedex-device__progress {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.pokedex-device__gen-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "num count" "bar bar";
+  align-items: center;
+  gap: 6px;
+  padding: 7px 8px 8px;
+  background: var(--scanlines), var(--lcd);
+  color: var(--lcd-dark);
+  border: var(--line-sm) solid var(--ink);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+.pokedex-device__gen-numeral {
+  grid-area: num;
+  font-family: var(--font-lcd);
+  font-size: 0.875rem;
+  line-height: 1;
+}
+.pokedex-device__gen-count {
+  grid-area: count;
+  justify-self: end;
+  font-family: var(--font-lcd);
+  font-size: 0.6875rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+.pokedex-device__gen-bar {
+  grid-area: bar;
+  display: block;
+  height: 12px;
+  padding: 1px;
+  background: var(--lcd-line);
+  border: var(--line-sm) solid var(--lcd-dark);
+  border-radius: 2px;
+}
+.pokedex-device__gen-bar span {
+  display: block;
+  height: 100%;
+  background: var(--segments);
+}
+
+/* Filter controls: a bezel panel of LCD selects and type keys. */
+.dex-filters {
+  padding: 12px;
+  background: var(--bezel);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: var(--shadow);
+}
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.toolbar__count {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 8px 12px 7px;
+  background: var(--scanlines), var(--lcd);
+  color: var(--lcd-dark);
+  border: var(--line-sm) solid var(--ink);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+.toolbar__count .lcd-num { font-size: 1rem; }
+.dex-filters .chip-btn {
+  min-height: 34px;
+  padding: 3px 10px 3px 7px;
+  font-size: 0.875rem;
+}
+/* Type swatch: shape + name identify the type; selection adds the border. */
+.dex-filters .chip-btn::before {
+  content: "";
+  flex: none;
+  width: 12px;
+  height: 12px;
+  background: var(--type-color, var(--ink-soft));
+  border: var(--line-sm) solid var(--ink);
+  border-radius: 2px;
+}
+.dex-filters .field__hint { color: var(--ink-soft); }
+
+/* The one LCD screen the whole browse grid sits on. */
 .pokedex-device__screen {
-  background: var(--cream);
+  margin: 28px 10px 0;
+  padding: 14px;
+  background: var(--scanlines), var(--lcd);
+  color: var(--lcd-dark);
   border: var(--line) solid var(--ink);
-  border-radius: var(--radius-md);
-  box-shadow: inset 0 0 0 4px var(--white);
-  padding: 1rem;
-}
-@media (max-width: 600px) {
-  .pokedex-device { padding: 0.85rem; }
-  .pokedex-device__title { font-size: 1.4rem; }
-  .pokedex-device__screen { padding: 0.6rem; }
+  border-radius: var(--radius-fallback);
+  box-shadow: var(--bezel-ring);
 }
 
-/* ------------------------------------------------------------------- drawer
-   Both the specimen-sheet drawer and the generic modal/dialog reuse the
-   "dialogue box" treatment: white panel, thick ink border, inner ring. */
-.drawer, .modal-dialog, .panel {
-  background: var(--surface);
+/* Region keys: a segmented track on the screen. */
+.dex-regions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 4px;
+  margin-bottom: 12px;
+  padding: 4px;
+  background: var(--bezel-dark);
   border: var(--line) solid var(--ink);
-  box-shadow: 0 var(--press) 0 var(--ink);
+  border-radius: var(--radius-fallback);
 }
-.drawer { border-radius: 0; border-right: none; box-shadow: var(--shadow-drawer); }
-.modal-dialog {
-  border-radius: var(--radius-lg);
-  box-shadow: inset 0 0 0 3px var(--white), inset 0 0 0 6px var(--blue-ray), 0 var(--press) 0 var(--ink);
+.dex-regions > .chip-btn:not(.is-active) {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
 }
-.panel { border-radius: var(--radius-md); }
-.drawer__head { background: var(--red); border-bottom: var(--line) solid var(--ink); }
-.drawer__num { color: var(--white); font-family: var(--font-mono); text-shadow: 0 1px 0 var(--ink); }
-.drawer__close { color: var(--white); width: 2rem; height: 2rem; display: inline-flex; align-items: center; justify-content: center; border: var(--line-sm) solid transparent; border-radius: var(--radius-sm); }
-.drawer__close:hover { background: var(--red-dark); border-color: var(--ink); }
-.drawer__close svg { width: 60%; height: 60%; }
-.drawer__name { font-family: var(--font-display); font-weight: 400; color: var(--white); text-shadow: 2px 2px 0 var(--ink); }
-.drawer__head .drawer__name { font-size: 1.4rem; }
-/* The specimen sheet repeats the name in the white body, where the
-   white-on-red header treatment would vanish. */
-.drawer__body .drawer__name { color: var(--ink); text-shadow: none; }
-.drawer__art { background: var(--cream-deep); border: var(--line-sm) solid var(--ink); border-radius: var(--radius-sm); }
-.drawer__genus { color: var(--slate); }
+.dex-regions > .chip-btn:not(.is-active):hover { background: var(--bezel); border-color: var(--ink-soft); }
 
-.section-label { color: var(--blue-night); text-transform: none; font-weight: 700; }
-.stat-row__track { border: 1.5px solid var(--ink); background: var(--cream-deep); border-radius: 3px; }
-.stat-row__fill { background: var(--yellow); }
-.stat-row__value { font-family: var(--font-mono); }
+.dex-region-sections { display: grid; gap: 2px; }
+.dex-region-section { scroll-margin-top: 12px; }
+.dex-region-section + .dex-region-section { border-top: var(--line-sm) dashed var(--lcd-dark); padding-top: 2px; }
+.dex-region-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px;
+  list-style: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.dex-region-heading::-webkit-details-marker { display: none; }
+.dex-region-heading::before {
+  content: "";
+  flex: none;
+  width: 0;
+  height: 0;
+  border-left: 10px solid var(--lcd-dark);
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+}
+.dex-region-section[open] > .dex-region-heading::before { transform: rotate(90deg); }
+.dex-region-heading:hover { background: var(--lcd-line); }
+.dex-region-heading h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  line-height: 1.1;
+  color: var(--lcd-dark);
+}
+.dex-region-heading span {
+  margin-left: auto;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--lcd-dark);
+  text-align: right;
+}
+.dex-region-section > .dex-grid { padding: 6px 0 18px; }
 
+/* ============================================================ browse grid */
+
+.dex-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.25rem, 1fr));
+  gap: 10px;
+}
+.dex-grid > .empty-state { grid-column: 1 / -1; }
+
+/* Entry cell: bezel card, LCD dex number, artwork, bold name, type badges. */
+.specimen-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  min-width: 0;
+  padding: 8px 8px 10px;
+  background: var(--bezel);
+  color: var(--ink);
+  border: var(--line-sm) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: var(--shadow-sm);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 80ms steps(2, end);
+}
+.specimen-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 0 var(--ink);
+}
+.specimen-card:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 var(--ink);
+}
+.specimen-card:focus-visible { box-shadow: var(--shadow-sm), var(--focus-ring); }
+.specimen-card__num {
+  order: -1;
+  align-self: flex-start;
+  padding: 2px 5px 1px;
+  background: var(--lcd);
+  color: var(--lcd-dark);
+  border: var(--line-sm) solid var(--ink);
+  border-radius: var(--radius-chip);
+  font-family: var(--font-lcd);
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+.specimen-card__art {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+.specimen-card__art img { width: 88%; height: 88%; object-fit: contain; }
+.specimen-card__name {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+.owned-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  background: var(--good);
+  color: var(--white);
+  border: var(--line-sm) solid var(--ink);
+  border-radius: 50%;
+}
+.owned-badge svg { width: 13px; height: 13px; }
+
+/* ========================================================== detail sheet
+   Two-panel device opened with the power-on reveal (see .drawer). */
+
+.drawer--detail {
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  width: min(62rem, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  grid-template-rows: auto 1fr;
+  grid-template-areas: "left name" "left sheet";
+  column-gap: 22px;
+  padding: 18px 18px 26px;
+  background: var(--dex-red);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: inset 0 2px 0 var(--dex-red-glint), inset 0 -8px 0 var(--dex-red-dark), var(--shadow);
+}
+.detail__namebar {
+  grid-area: name;
+  position: static;
+  padding: 10px 10px 14px 16px;
+  border: var(--line) solid var(--ink);
+  border-radius: 5px 5px 0 0;
+}
+.drawer--detail .drawer__name {
+  font-size: var(--text-xl);
+  overflow-wrap: anywhere;
+}
+
+.detail__left {
+  grid-area: left;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 10px;
+}
+.detail__screen {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  padding: 40px 18px 18px;
+  background: var(--scanlines), var(--lcd);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: var(--bezel-ring);
+}
+.detail__screen img { width: 84%; max-height: 100%; object-fit: contain; }
+.detail__screen .drawer__num {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  font-family: var(--font-lcd);
+  font-size: 1.125rem;
+  line-height: 1;
+  color: var(--lcd-dark);
+}
+.drawer__actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.detail__left .field__hint {
+  padding: 6px 10px;
+  background: var(--dex-red-dark);
+  color: var(--white);
+  border: var(--line-sm) solid var(--ink);
+  border-radius: var(--radius-chip);
+  font-weight: 500;
+}
+
+.detail__sheet {
+  grid-area: sheet;
+  padding: 14px 16px 18px;
+  background: var(--bezel);
+  border: var(--line) solid var(--ink);
+  border-top: none;
+  border-radius: 0 0 var(--radius-fallback) var(--radius-fallback);
+  box-shadow: var(--shadow);
+}
+.detail__sheet .section-label { margin: 20px 0 10px; }
+
+/* Label / value rows separated by dotted screen-divider rules. */
+.detail__data { margin: 12px 0 0; }
+.detail__data > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 2px;
+  border-bottom: var(--line-sm) dotted var(--lcd-line);
+}
+.detail__data dt {
+  font-size: var(--text-label);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--dex-red-dark);
+}
+.detail__data dd { margin: 0; font-weight: 600; text-align: right; }
+
+/* Base stats: segmented LCD bars (blocks 9px, scale /255) + Silkscreen values. */
+.detail__stats,
+.matchup-grid {
+  margin: 0 8px;
+  padding: 8px 12px;
+  background: var(--scanlines), var(--lcd);
+  color: var(--lcd-dark);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: var(--bezel-ring-sm);
+}
+.stat-row {
+  display: grid;
+  grid-template-columns: 4.75rem minmax(0, 1fr) 2.75rem;
+  align-items: center;
+  gap: 10px;
+  padding: 3px 0;
+}
+.stat-row__label {
+  font-size: var(--text-label);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.stat-row__track {
+  display: block;
+  height: 16px;
+  padding: 2px;
+  background: var(--lcd-line);
+  border: var(--line-sm) solid var(--lcd-dark);
+  border-radius: 2px;
+}
+.stat-row__fill {
+  display: block;
+  height: 100%;
+  width: max(7px, calc(var(--fill, 0) * 100%));
+  background: var(--segments-stat);
+}
+@supports (width: round(nearest, 10px, 9px)) {
+  .stat-row__fill { width: max(7px, round(nearest, calc(var(--fill, 0) * 100%), 9px)); }
+}
+.stat-row__value {
+  font-family: var(--font-lcd);
+  font-size: 1rem;
+  line-height: 1;
+  text-align: right;
+}
+.stat-row--total {
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: var(--line-sm) dotted var(--lcd-dark);
+}
+.stat-row--total .stat-row__value { font-size: 1.125rem; }
+
+/* Type matchups readout. */
+.matchup-grid { display: flex; flex-direction: column; font-weight: 600; }
+.matchup-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+}
+.matchup-row + .matchup-row { border-top: var(--line-sm) dotted var(--lcd-line); }
+.matchup-row__mult {
+  flex: none;
+  width: 3.25rem;
+  font-family: var(--font-lcd);
+  font-size: 1rem;
+  color: var(--lcd-dark);
+}
+.matchup-row__types { display: flex; flex-wrap: wrap; gap: 4px; }
 .mult-4 .matchup-row__mult, .mult-2 .matchup-row__mult { color: var(--bad); }
-.mult-0\.5 .matchup-row__mult, .mult-0\.25 .matchup-row__mult { color: var(--good); }
-.mult-0 .matchup-row__mult { color: var(--good); font-weight: 700; }
 
-.banner { border: var(--line-sm) solid var(--ink); border-radius: var(--radius-sm); font-weight: 600; }
-.banner-error { background: var(--bad-bg); color: var(--bad); }
-.banner-info { background: var(--surface); color: var(--blue-night); border-color: var(--blue-deep); }
-.banner-amber { background: var(--yellow-soft); color: var(--ink); border-color: var(--yellow-dark); }
+/* ============================================================ collection */
 
-.auth-wrap .panel { border-radius: var(--radius-lg); }
-.auth-switch { color: var(--slate); }
+.view > .toolbar { margin-bottom: 26px; }
+/* The collection grid sits on its own LCD screen. */
+.view > .dex-grid {
+  margin: 0 10px 10px;
+  padding: 14px;
+  background: var(--scanlines), var(--lcd);
+  color: var(--lcd-dark);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: var(--bezel-ring);
+}
+.view > .dex-grid > .empty-state { margin: 0; box-shadow: none; }
 
-/* --------------------------------------------------------------- team grid */
-.team-slot { background: var(--surface); border: var(--line) dashed var(--ink); border-radius: var(--radius-md); }
-.team-slot.is-filled { border-style: solid; box-shadow: 0 3px 0 var(--ink); }
-.team-slot__remove { background: var(--bad-bg); color: var(--bad); border: var(--line-sm) solid var(--ink); width: 1.6rem; height: 1.6rem; display: inline-flex; align-items: center; justify-content: center; }
-.team-slot__remove svg { width: 55%; height: 55%; }
-.unowned-flag { color: var(--red-dark); }
+/* =========================================================== team builder */
 
-.coverage-cell { background: var(--surface); border: var(--line-sm) solid var(--ink); border-radius: var(--radius-sm); }
-.coverage-cell__mult { font-family: var(--font-mono); }
+#teams-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 26rem), 1fr));
+  align-items: start;
+  gap: 16px;
+}
+#teams-list > .btn { grid-column: 1 / -1; justify-self: start; margin-bottom: 4px !important; }
+#teams-list > .empty-state { grid-column: 1 / -1; }
+#teams-list > .panel + .panel { margin-top: 0; }
+.team-card__actions { display: flex; gap: 8px; }
+.team-grid > .panel + .panel { margin-top: 0; }
+.team-grid > .panel + .panel { margin-top: 0; }
+.team-card .field__hint { margin-top: 2px; }
+.team-card__thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 18px 8px 10px;
+  padding: 8px;
+  background: var(--scanlines), var(--lcd);
+  color: var(--lcd-dark);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: var(--bezel-ring-sm);
+}
+.team-card__thumbs img {
+  width: 3rem;
+  height: 3rem;
+  object-fit: contain;
+  background: var(--bezel);
+  border: var(--line-sm) solid var(--ink);
+  border-radius: var(--radius-chip);
+}
 
-/* ------------------------------------------------------------- battle view */
+/* Six team slots on one LCD screen (editor + generated counter teams). */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.panel > .team-grid,
+#battle-generate-results > .team-grid {
+  margin: 10px;
+  padding: 12px;
+  background: var(--scanlines), var(--lcd);
+  color: var(--lcd-dark);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: var(--bezel-ring);
+}
+#battle-generate-results > .team-grid { margin: 18px 10px 10px; }
+.team-slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 9.5rem;
+  padding: 10px;
+  background: transparent;
+  color: var(--lcd-dark);
+  border: var(--line-sm) dashed var(--lcd-dark);
+  border-radius: var(--radius-fallback);
+  font: inherit;
+  text-align: center;
+}
+button.team-slot { cursor: pointer; }
+button.team-slot:hover:not(:disabled) { background: var(--lcd-line); }
+.team-slot__add { font-weight: 700; font-size: 0.9375rem; }
+.team-slot.is-filled {
+  background: var(--bezel);
+  color: var(--ink);
+  border: var(--line-sm) solid var(--ink);
+  box-shadow: var(--shadow-sm);
+}
+.team-slot__name { font-weight: 700; font-size: 0.9375rem; overflow-wrap: anywhere; }
+.team-slot .field__hint { font-size: 0.8125rem; }
+.team-slot__remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: var(--bad-bg);
+  color: var(--bad);
+  border: var(--line-sm) solid var(--ink);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+.team-slot__remove:active { transform: translateY(1px); box-shadow: 0 1px 0 var(--ink); }
+.team-slot__remove svg { width: 14px; height: 14px; }
+.unowned-flag {
+  font-size: var(--text-label);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--dex-red-dark);
+}
+
+/* Offensive coverage readout. */
+.coverage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+  gap: 6px;
+  margin: 0 8px;
+  padding: 10px;
+  background: var(--scanlines), var(--lcd);
+  color: var(--lcd-dark);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: var(--bezel-ring-sm);
+}
+.coverage-cell {
+  padding: 5px 6px 6px;
+  border: var(--line-sm) solid var(--lcd-line);
+  border-radius: var(--radius-chip);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-align: center;
+}
+.coverage-cell__mult {
+  display: block;
+  margin-top: 3px;
+  font-family: var(--font-lcd);
+  font-size: 0.9375rem;
+  line-height: 1;
+}
+
+/* ========================================================= battle planner */
+
+.vs-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 16px 24px;
+  padding: 16px;
+  background: var(--bezel);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: var(--shadow);
+}
+.vs-row .field__label { display: block; }
 .vs-mark {
   font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 2.1rem;
-  color: var(--red);
-  -webkit-text-stroke: 3px var(--ink);
-  paint-order: stroke fill;
+  font-size: var(--text-2xl);
+  line-height: 1;
+  color: var(--dex-red);
+  text-shadow: 3px 3px 0 var(--ink);
 }
-.opponent-chip { background: var(--surface); border: var(--line-sm) solid var(--ink); border-radius: var(--radius-sm); }
-.opponent-chip button { color: var(--ink); width: 1.3rem; height: 1.3rem; display: inline-flex; align-items: center; justify-content: center; }
-.opponent-chip button svg { width: 55%; height: 55%; }
-
-.result-card { background: var(--surface); border: var(--line-sm) solid var(--ink); border-radius: var(--radius-sm); box-shadow: 0 2px 0 var(--ink); }
-.result-card__rank { font-family: var(--font-mono); color: var(--blue-night); }
-.result-card__art { background: var(--cream-deep); border: 1.5px solid var(--ink); border-radius: 3px; }
-.result-card__name { font-family: var(--font-display); font-weight: 400; }
-.result-card__score { font-family: var(--font-mono); }
-.replacement-card { border-left: var(--line) solid var(--yellow-dark); }
-
-/* -------------------------------------------------------------- mobile nav */
-.mobile-tabbar {
-  background: var(--blue);
-  border-top: var(--line) solid var(--ink);
-  box-shadow: inset 0 5px 0 var(--yellow), inset 0 8px 0 var(--blue-deep);
+.opponent-slots { display: flex; flex-wrap: wrap; gap: 8px; }
+.opponent-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 4px;
+  background: var(--lcd);
+  color: var(--lcd-dark);
+  border: var(--line-sm) solid var(--ink);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  font-weight: 700;
 }
-.mobile-tabbar a { color: var(--white); font-weight: 700; }
-.mobile-tabbar a.is-active { color: var(--ink); background: var(--yellow); border-radius: var(--radius-sm); border: var(--line-sm) solid var(--ink); box-shadow: 0 2px 0 var(--ink); }
+.opponent-chip img { width: 32px; height: 32px; object-fit: contain; }
+.opponent-chip button {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  background: var(--bezel);
+  color: var(--ink);
+  border: var(--line-sm) solid var(--ink);
+  border-radius: var(--radius-chip);
+  cursor: pointer;
+}
+.opponent-chip button svg { width: 12px; height: 12px; }
+.tab-row { display: flex; align-items: center; gap: 8px; margin: 28px 0 12px; }
+.tab-row .section-title { margin: 0 auto 0 0; }
 
-/* ------------------------------------------------------------- context menu */
-.pokemon-context-menu { background: var(--surface); border: var(--line) solid var(--ink); border-radius: var(--radius-sm); box-shadow: 0 var(--press) 0 var(--ink); }
-.pokemon-context-menu__title { color: var(--blue-night); font-weight: 700; border-bottom: var(--line-sm) solid var(--ink); }
-.pokemon-context-menu button:hover, .pokemon-context-menu button:focus-visible { background: var(--yellow-soft); color: var(--ink); }
+/* Ranked counters / picker results: rows on an LCD readout. */
+#battle-results:has(> .result-card) {
+  margin: 10px;
+  padding: 4px 14px;
+  background: var(--scanlines), var(--lcd);
+  color: var(--lcd-dark);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: var(--bezel-ring);
+}
+.result-card {
+  display: grid;
+  grid-template-columns: 3.5rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 4px;
+  background: transparent;
+  color: var(--lcd-dark);
+  border: none;
+  border-radius: 0;
+  font: inherit;
+  text-align: left;
+}
+.result-card + .result-card { border-top: var(--line-sm) solid var(--lcd-line); }
+button.result-card { cursor: pointer; }
+button.result-card:hover { background: var(--lcd-line); }
+.result-card--ranked { grid-template-columns: 2.75rem 3.5rem minmax(0, 1fr) auto; }
+.result-card__rank { font-family: var(--font-lcd); font-size: 1rem; }
+.result-card__art {
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  background: var(--bezel);
+  border: var(--line-sm) solid var(--ink);
+  border-radius: var(--radius-sm);
+}
+.result-card__art img { width: 88%; height: 88%; object-fit: contain; }
+.result-card__name { font-weight: 700; font-size: 1.0625rem; overflow-wrap: anywhere; }
+.result-card .specimen-card__types { margin-top: 4px; }
+.result-card__explain { margin-top: 5px; font-size: var(--text-sm); color: var(--lcd-dark); }
+.result-card__score { font-family: var(--font-lcd); font-size: 1.25rem; line-height: 1; text-align: right; }
+.result-card__actions { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+/* "Owned" marker: a bordered tag, not colour alone. */
+.result-card--ranked .field__hint {
+  padding: 0 6px;
+  border: var(--line-sm) solid var(--lcd-dark);
+  border-radius: var(--radius-chip);
+  color: var(--lcd-dark);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
 
-/* Empty messages must span the card grid instead of occupying one card. */
-.dex-grid > .empty-state { grid-column: 1 / -1; }
-.empty-state > p { max-width: 52ch; margin-left: auto; margin-right: auto; }
+.replacement-card {
+  padding-left: 26px;
+  box-shadow: inset 8px 0 0 var(--yellow), inset 10px 0 0 var(--ink), var(--shadow);
+}
+.replacement-card .field__hint { margin-top: 4px; }
+.tradeoff-list { margin-top: 4px; font-size: 0.8125rem; color: var(--ink-soft); }
 
-@media (max-width: 600px) {
-  .dex-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+/* ================================================================ account */
+
+.auth-wrap { max-width: 26rem; margin: 28px auto; }
+.auth-wrap .panel { padding: 16px 20px 20px; }
+.auth-wrap .panel > .view-title {
+  margin-top: -16px;
+  margin-left: -20px;
+  margin-right: -20px;
+  padding: 12px 20px 16px;
+  background: var(--dex-red);
+  border-bottom: var(--line) solid var(--ink);
+  border-radius: 3px 3px 0 0;
+  box-shadow: inset 0 -4px 0 var(--dex-red-dark), inset 0 2px 0 var(--dex-red-glint);
+  font-size: var(--text-xl);
+}
+.auth-wrap .view-subtitle {
+  display: block;
+  margin-top: 14px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--ink-soft);
+  font-size: 0.9375rem;
+}
+.auth-switch { margin-top: 16px; text-align: center; font-size: 0.9375rem; color: var(--ink-soft); }
+
+.account-stat { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+.account-stat__count {
+  margin: 10px 8px 12px;
+  min-width: 4ch;
+  padding: 10px 14px 8px;
+  background: var(--scanlines), var(--lcd);
+  color: var(--lcd-dark);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: var(--bezel-ring-sm);
+  font-size: 2.25rem;
+  line-height: 1;
+  text-align: right;
+}
+
+/* ====================================================== phones (screens) */
+
+@media (max-width: 720px) {
+  .view > .dex-grid { margin: 0 6px 6px; padding: 8px; box-shadow: var(--bezel-ring-sm); }
+  .team-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .panel > .team-grid, #battle-generate-results > .team-grid { margin: 8px 6px; padding: 8px; box-shadow: var(--bezel-ring-sm); }
+  .team-slot { min-height: 8.5rem; padding: 8px; }
+  .mode-toggle { display: flex; }
+  .mode-toggle button { flex: 1 1 auto; }
+  .mode-toggle { display: flex; }
+  .mode-toggle button { flex: 1 1 auto; }
+  .vs-row { grid-template-columns: minmax(0, 1fr); padding: 12px; }
+  .vs-mark { font-size: var(--text-xl); }
+  #battle-results:has(> .result-card) { margin: 8px 6px; padding: 2px 10px; box-shadow: var(--bezel-ring-sm); }
+  .result-card { grid-template-columns: 3rem minmax(0, 1fr); gap: 10px; }
+  .result-card__art { width: 3rem; height: 3rem; }
+  .result-card--ranked { grid-template-columns: 2.25rem 3rem minmax(0, 1fr); }
+  .result-card--ranked .result-card__actions {
+    grid-column: 2 / -1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .auth-wrap { margin: 8px auto; }
+}
+
+/* ===================================================== phones (Pokédex) */
+
+@media (max-width: 720px) {
+  .pokedex-device { padding: 10px 8px 16px; }
+  .pokedex-device__top { gap: 10px 12px; margin-bottom: 12px; }
+  .pokedex-device__lens { width: 36px; height: 36px; margin: 6px; }
+  .pokedex-device__lens::after { width: 8px; height: 8px; top: 4px; left: 5px; }
+  .pokedex-device__title { font-size: 1.75rem; }
+  .pokedex-device__title-wrap { min-width: 0; flex-basis: calc(100% - 70px); }
+  .pokedex-device__counter { margin: 6px 6px 6px 6px; font-size: 1rem; }
+  .pokedex-device__progress { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-bottom: 14px; }
+  .pokedex-device__gen-card { padding: 6px 6px 7px; }
+  .dex-filters { padding: 10px; }
+  .toolbar .select { flex: 1 1 100%; }
+  .toolbar__count { margin-left: 0; }
+
+  /* Thinner bezel on phones; the grid stays at 3 columns. */
+  .pokedex-device__screen { margin: 22px 6px 0; padding: 8px; box-shadow: var(--bezel-ring-sm); }
+  .dex-regions { gap: 2px; }
+  .dex-regions > .chip-btn { min-height: 32px; padding: 3px 8px; font-size: 0.8125rem; }
+  .dex-region-heading { padding: 8px 4px; gap: 8px; }
+  .dex-region-heading h2 { font-size: 1.25rem; }
+  .dex-region-heading span { font-size: 0.75rem; }
+  .dex-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .specimen-card { padding: 5px 5px 7px; gap: 3px; }
+  .specimen-card__num { font-size: 0.625rem; padding: 1px 3px 0; }
+  .specimen-card__name { font-size: 0.8125rem; }
+  .specimen-card .type-chip { font-size: 0.625rem; padding: 0 4px; letter-spacing: 0.02em; }
+  .owned-badge { width: 18px; height: 18px; top: 4px; right: 4px; }
+  .owned-badge svg { width: 10px; height: 10px; }
+
+  /* Detail sheet fills the screen as one scrolling column. */
+  .drawer--detail {
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    transform: none;
+    width: auto;
+    max-height: none;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    grid-template-areas: "name" "left" "sheet";
+    padding: 10px 10px 20px;
+  }
+  .detail__namebar { border-radius: var(--radius-sm); box-shadow: inset 0 -4px 0 var(--dex-red-dark), var(--shadow-sm); }
+  .drawer--detail .drawer__name { font-size: var(--text-lg); }
+  .detail__left { padding: 16px 6px 6px; gap: 14px; }
+  .detail__screen { aspect-ratio: auto; height: 230px; padding: 34px 12px 12px; box-shadow: var(--bezel-ring-sm); }
+  .detail__screen img { width: auto; max-width: 100%; height: 180px; }
+  .drawer__actions .btn { flex: 1 1 auto; }
+  .detail__sheet { margin-top: 16px; border-top: var(--line) solid var(--ink); border-radius: var(--radius-fallback); padding: 12px; }
+  .stat-row { grid-template-columns: 4.25rem minmax(0, 1fr) 2.5rem; gap: 8px; }
+  .detail__stats, .matchup-grid { margin: 0 6px; padding: 6px 10px; }
+}
+
+/* ===================================================== bevelled corners */
+
+@supports (corner-shape: bevel) {
+  .pokedex-device, .dex-filters, .pokedex-device__screen, .dex-regions,
+  .specimen-card, .drawer--detail, .detail__screen, .detail__stats, .matchup-grid {
+    border-radius: var(--radius);
+    corner-shape: bevel;
+  }
+  .pokedex-device__gen-card, .pokedex-device__counter, .toolbar__count {
+    border-radius: var(--radius-sm);
+    corner-shape: bevel;
+  }
+  .view > .dex-grid, .team-card__thumbs, .panel > .team-grid, #battle-generate-results > .team-grid,
+  .team-slot, .coverage-grid, .vs-row, #battle-results:has(> .result-card), .account-stat__count {
+    border-radius: var(--radius);
+    corner-shape: bevel;
+  }
+  .opponent-chip, .team-slot__remove, .result-card__art {
+    border-radius: var(--radius-sm);
+    corner-shape: bevel;
+  }
+  .detail__namebar, .auth-wrap .panel > .view-title { border-radius: 5px 5px 0 0; corner-shape: bevel; }
+  .detail__sheet { border-radius: 0 0 var(--radius) var(--radius); corner-shape: bevel; }
+}
+@media (max-width: 720px) {
+  @supports (corner-shape: bevel) {
+    .detail__namebar { border-radius: var(--radius-sm); }
+    .detail__sheet { border-radius: var(--radius); }
+  }
 }

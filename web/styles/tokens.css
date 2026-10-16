@@ -1,0 +1,199 @@
+/* PokemonDB -- Pokédex device tokens, fonts and primitives.
+   The site *is* the Pokédex: a red handheld body, cream bezels around green
+   LCD screens, ink outlines, flat offset shadows and bevelled corners.
+   Loaded first; main.css (shell + shared components) and database.css
+   (screens) build only on the tokens defined here. */
+
+@font-face {
+  font-family: "Bowlby One SC";
+  src: url("../fonts/BowlbyOneSC-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Rubik";
+  src: url("../fonts/Rubik-Variable.woff2") format("woff2-variations");
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Silkscreen";
+  src: url("../fonts/Silkscreen-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* -- device palette (exact values) -- */
+  --dex-red: #E3350D;        /* device body, primary action */
+  --dex-red-dark: #A8200A;   /* hinge stripe, pressed states, inset rings */
+  --dex-red-glint: #FF6A4D;  /* highlight edge */
+  --lcd: #C7E6B8;            /* screen fill */
+  --lcd-dark: #1D3B17;       /* screen text, numerals, switched-off tiles */
+  --lcd-line: #A9CF98;       /* dividers on screens */
+  --bezel: #E9E4D4;          /* screen surround, cards, panels */
+  --bezel-dark: #D9D2BD;     /* pressed / track colour */
+  --cream-deep: #F6EBC8;     /* page background */
+  --ink: #222224;            /* all outlines and text */
+  --ink-soft: #55555C;
+  --white: #FFFFFF;
+  --yellow: #FFCB05;         /* tiny accents only */
+  --blue: #2A75BB;
+  --blue-ray: #4A90D0;
+  --light-red: #FF4B3E;      /* indicator lights */
+  --light-yellow: #FFD93B;
+  --light-green: #59D96A;
+  --good: #1F7A3A;
+  --good-bg: #E3F4E5;
+  --bad: #B00F0F;
+  --bad-bg: #FDE6E4;
+
+  /* -- official type colours (fills only; label ink decided in typecolors.js) -- */
+  --t-normal: #A8A878;
+  --t-fire: #F08030;
+  --t-water: #6890F0;
+  --t-electric: #F8D030;
+  --t-grass: #78C850;
+  --t-ice: #98D8D8;
+  --t-fighting: #C03028;
+  --t-poison: #A040A0;
+  --t-ground: #E0C068;
+  --t-flying: #A890F0;
+  --t-psychic: #F85888;
+  --t-bug: #A8B820;
+  --t-rock: #B8A038;
+  --t-ghost: #705898;
+  --t-dragon: #7038F8;
+  --t-dark: #705848;
+  --t-steel: #B8B8D0;
+  --t-fairy: #EE99AC;
+
+  /* -- type -- */
+  --font-display: "Bowlby One SC", "Arial Black", sans-serif;
+  --font-ui: "Rubik", "Segoe UI", system-ui, sans-serif;
+  --font-lcd: "Silkscreen", ui-monospace, "Consolas", monospace;
+  --text-label: 0.8rem;      /* 12.8px small-caps labels + type badges */
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-md: 1.125rem;
+  --text-lg: 1.5rem;         /* smallest white-on-red size (AA large) */
+  --text-xl: 2rem;
+  --text-2xl: 2.5rem;
+
+  /* -- shape & depth -- */
+  --line: 3px;
+  --line-sm: 2px;
+  --radius: 8px;             /* bevelled where corner-shape is supported */
+  --radius-fallback: 6px;
+  --radius-sm: 4px;
+  --radius-chip: 3px;
+  --shadow: 0 4px 0 var(--ink);
+  --shadow-sm: 0 2px 0 var(--ink);
+  --press: 3px;
+  --focus-ring: 0 0 0 6px var(--light-yellow);
+  --bezel-ring: 0 0 0 7px var(--bezel), 0 0 0 10px var(--ink);
+  --bezel-ring-sm: 0 0 0 5px var(--bezel), 0 0 0 8px var(--ink);
+  --hinge: inset 0 -8px 0 var(--dex-red-dark), inset 0 2px 0 var(--dex-red-glint);
+
+  /* -- hard-edged patterns (the only "gradients" allowed) -- */
+  --grille: radial-gradient(rgba(34, 34, 36, 0.09) 1.2px, transparent 1.6px) 0 0 / 14px 14px;
+  --scanlines: repeating-linear-gradient(0deg, transparent 0 3px, rgba(29, 59, 23, 0.05) 3px 4px);
+  --segments: repeating-linear-gradient(90deg, var(--lcd-dark) 0 5px, transparent 5px 7px);
+  --segments-stat: repeating-linear-gradient(90deg, var(--lcd-dark) 0 7px, transparent 7px 9px);
+
+  /* -- layout -- */
+  --content-max: 1104px;
+  --gutter: 16px;
+}
+
+@media (max-width: 720px) {
+  :root { --gutter: 12px; }
+}
+
+/* --------------------------------------------------------------- base */
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  line-height: 1.45;
+  color: var(--ink);
+  background: var(--grille), var(--cream-deep);
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+button, input, select, textarea { font: inherit; color: inherit; }
+ul { margin: 0; padding: 0; list-style: none; }
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; }
+strong { font-weight: 700; }
+
+:focus-visible {
+  outline: var(--line) solid var(--ink);
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --------------------------------------------------------- primitives */
+
+/* LCD readout numerals. Numbers only -- never sentences. */
+.lcd-num {
+  font-family: var(--font-lcd);
+  font-weight: 400;
+  font-synthesis: none;
+  letter-spacing: 0;
+}
+
+/* Small-caps device labels. */
+.sc-label {
+  font-family: var(--font-ui);
+  font-size: var(--text-label);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--dex-red-dark);
+}
+
+/* A green LCD screen sitting in a cream bezel with its own ink outline. */
+.lcd-screen {
+  background: var(--scanlines), var(--lcd);
+  color: var(--lcd-dark);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius-fallback);
+  box-shadow: var(--bezel-ring);
+  margin: 10px;
+}
+
+/* The "power-on" reveal used when a detail view or dialog opens. */
+@keyframes power-on {
+  from { clip-path: inset(0 0 100% 0); }
+  to { clip-path: inset(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

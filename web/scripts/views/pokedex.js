@@ -95,7 +95,8 @@ export async function renderPokedex(root) {
   const filters = document.createElement("section");
   filters.className = "dex-filters";
   filters.setAttribute("aria-label", "Pokédex filters");
-  screen.appendChild(filters);
+  // The filter controls sit on the device body; the screen below holds the readout.
+  device.insertBefore(filters, screen);
   filters.appendChild(toolbar);
 
   const genSelect = document.createElement("select");
@@ -220,7 +221,7 @@ export async function renderPokedex(root) {
           ? "Pokémon have at most two types. Select one or two types to use All."
           : `Showing Pokémon with ${selectedTypes.join(" and ")}${selectedTypes.length === 2 ? " together (dual type)" : ""}.`;
     const results = applyFilters(state.pokemon);
-    count.textContent = `${results.length.toLocaleString()} Pokémon`;
+    count.innerHTML = `<span class="lcd-num">${results.length.toLocaleString()}</span> Pokémon`;
     for (const { button, value } of regionButtons) {
       const active = value === filterState.generation;
       button.classList.toggle("is-active", active);

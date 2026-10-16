@@ -6,49 +6,85 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PokémonDB — Pokédex & team tools</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles/tokens.css">
 <link rel="stylesheet" href="/styles/main.css">
 <link rel="stylesheet" href="/styles/database.css">
 </head>
 <body>
 <div class="app-shell">
-  <nav class="rail" aria-label="Primary">
-    <div class="rail__brand">
-      <svg class="rail__brand-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <circle cx="12" cy="12" r="9.5" fill="var(--red)" stroke="var(--ink)" stroke-width="2"/>
-        <path d="M2.5 12a9.5 9.5 0 0 1 19 0" fill="var(--red)" stroke="var(--ink)" stroke-width="2"/>
-        <path d="M2.5 12a9.5 9.5 0 0 0 19 0" fill="var(--white)" stroke="var(--ink)" stroke-width="2"/>
-        <path d="M2.5 12h7a2.5 2.5 0 0 0 5 0h7" fill="none" stroke="var(--ink)" stroke-width="2"/>
-        <circle cx="12" cy="12" r="2.6" fill="var(--white)" stroke="var(--ink)" stroke-width="2"/>
-      </svg>
-      <span class="rail__brand-name">PokémonDB</span>
+  <!-- Device top: lens, indicator lights, title and primary navigation. -->
+  <header class="device-top">
+    <div class="device-top__inner">
+      <div class="device-top__brand">
+        <span class="device-lens" aria-hidden="true"></span>
+        <span class="device-lights" aria-hidden="true">
+          <span class="device-light device-light--red"></span>
+          <span class="device-light device-light--yellow"></span>
+          <span class="device-light device-light--green"></span>
+        </span>
+        <span class="device-top__title">PokémonDB</span>
+      </div>
+      <nav class="rail" aria-label="Primary">
+        <ul class="rail__nav" id="rail-nav">
+          <li><a class="rail__link" data-route="dex" href="#/dex">Pokédex</a></li>
+          <li><a class="rail__link" data-route="collection" href="#/collection">My collection</a></li>
+          <li><a class="rail__link" data-route="teams" href="#/teams">Team builder</a></li>
+          <li><a class="rail__link" data-route="battle" href="#/battle">Battle planner</a></li>
+          <li><a class="rail__link" data-route="account" href="#/account">Account</a></li>
+        </ul>
+      </nav>
     </div>
-    <ul class="rail__nav" id="rail-nav">
-      <li><a class="rail__link" data-route="dex" href="#/dex">Pokédex</a></li>
-      <li><a class="rail__link" data-route="collection" href="#/collection">My collection</a></li>
-      <li><a class="rail__link" data-route="teams" href="#/teams">Team builder</a></li>
-      <li><a class="rail__link" data-route="battle" href="#/battle">Battle planner</a></li>
-      <li><a class="rail__link" data-route="account" href="#/account">Account</a></li>
-    </ul>
-    <div class="rail__footer" id="rail-footer"></div>
-  </nav>
+  </header>
 
-  <div class="main-col">
-    <header class="topbar">
+  <div class="topbar">
+    <div class="topbar__inner">
       <input class="input topbar__search" id="global-search" type="search"
              placeholder="Search by name or number…" aria-label="Search Pokédex">
       <div id="topbar-account"></div>
-    </header>
-    <main class="view" id="view" tabindex="-1"></main>
+    </div>
   </div>
-</div>
 
-<nav class="mobile-tabbar" aria-label="Primary">
-  <a data-route="dex" href="#/dex">Dex</a>
-  <a data-route="collection" href="#/collection">Collection</a>
-  <a data-route="teams" href="#/teams">Teams</a>
-  <a data-route="battle" href="#/battle">Battle</a>
-  <a data-route="account" href="#/account">Account</a>
-</nav>
+  <main class="view" id="view" tabindex="-1"></main>
+
+  <!-- Phone navigation: the device's bottom button row. -->
+  <nav class="mobile-tabbar" aria-label="Primary">
+    <a data-route="dex" href="#/dex">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M4.5 3h12.5l2.5 2.5V21h-15z" fill="#E3350D" stroke="#222224" stroke-width="2" stroke-linejoin="round"/>
+        <rect x="7.5" y="9.5" width="9" height="7" fill="#C7E6B8" stroke="#222224" stroke-width="2"/>
+        <circle cx="8.5" cy="6.2" r="1.7" fill="#4A90D0" stroke="#222224" stroke-width="1.5"/>
+      </svg>
+      <span>Dex</span>
+    </a>
+    <a data-route="collection" href="#/collection">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M3 12a9 9 0 0 1 18 0z" fill="#E3350D" stroke="#222224" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M3 12a9 9 0 0 0 18 0z" fill="#FFFFFF" stroke="#222224" stroke-width="2" stroke-linejoin="round"/>
+        <circle cx="12" cy="12" r="3" fill="#FFFFFF" stroke="#222224" stroke-width="2"/>
+      </svg>
+      <span>Collection</span>
+    </a>
+    <a data-route="teams" href="#/teams">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z" fill="#FFCB05" stroke="#222224" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+      <span>Teams</span>
+    </a>
+    <a data-route="battle" href="#/battle">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M5 19L19 5M12.5 5H19v6.5M19 19L5 5M5 11.5V5h6.5" fill="none" stroke="#222224" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Battle</span>
+    </a>
+    <a data-route="account" href="#/account">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M10.3 2.5h3.4l.5 2.6 1.9.8 2.2-1.5 2.4 2.4-1.5 2.2.8 1.9 2.6.5v3.4l-2.6.5-.8 1.9 1.5 2.2-2.4 2.4-2.2-1.5-1.9.8-.5 2.6h-3.4l-.5-2.6-1.9-.8-2.2 1.5-2.4-2.4 1.5-2.2-.8-1.9-2.6-.5v-3.4l2.6-.5.8-1.9-1.5-2.2 2.4-2.4 2.2 1.5 1.9-.8z" fill="#E9E4D4" stroke="#222224" stroke-width="1.8" stroke-linejoin="round"/>
+        <circle cx="12" cy="12" r="3.2" fill="#4A90D0" stroke="#222224" stroke-width="2"/>
+      </svg>
+      <span>Account</span>
+    </a>
+  </nav>
+</div>
 
 <div id="drawer-root"></div>
 <div id="toast-root" class="visually-hidden" role="status" aria-live="polite"></div>

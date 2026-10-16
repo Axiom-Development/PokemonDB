@@ -126,14 +126,14 @@ async function dashboard(root) {
   } catch { /* leave zeros */ }
 
   grid.innerHTML = `
-    <div class="panel">
-      <p class="field__hint">Collection</p>
-      <p class="view-title" style="font-size:2rem">${collectionCount}</p>
+    <div class="panel account-stat">
+      <p class="sc-label">Collection</p>
+      <p class="account-stat__count lcd-num">${collectionCount}</p>
       <a class="btn btn-ghost btn-sm" href="#/collection">View collection</a>
     </div>
-    <div class="panel">
-      <p class="field__hint">Saved teams</p>
-      <p class="view-title" style="font-size:2rem">${teamCount}</p>
+    <div class="panel account-stat">
+      <p class="sc-label">Saved teams</p>
+      <p class="account-stat__count lcd-num">${teamCount}</p>
       <a class="btn btn-ghost btn-sm" href="#/teams">View teams</a>
     </div>`;
 

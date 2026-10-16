@@ -58,39 +58,45 @@ Pokémon in an "owned" context.
 
 ## Design
 
-Built using Claude Code's **frontend-design** skill (`.claude/skills/frontend-design`),
-which asks for a distinctive, subject-grounded visual identity rather than
-generic dashboard defaults.
+**Concept -- the site is the Pokédex.** Every part of the interface is a
+part of a red handheld device: the page header is the device top (blue lens
+plus three indicator lights), data screens are green LCD panels sitting in
+cream bezels, lists and tables are readouts, numbers are pixel LCD digits
+and buttons are chunky keys that press down. It is a visual skin only --
+routes, data and behaviour are unchanged.
 
-**Concept -- a trainer's field binder.** A dark "binder case" shell holds
-light "index card" content: every Pokémon is rendered as a consistent
-specimen card (number, art, name, type chips) reused across every screen,
-like a catalogued field guide rather than a game UI skin.
-
-- **Color** -- `#16231F` ink (shell/chrome), `#F2EEDE` parchment (content
-  surfaces), `#3C6E52` moss (primary actions), `#C97F1F` amber (secondary
-  actions, badges), `#B23A26` ember (danger/weakness). The 18 Pokémon
-  types get their own custom, muted palette (`--t-fire`, `--t-water`, …)
-  used only as small identifying dots and chip borders -- color is a
-  wayfinding system, never decoration.
-- **Type** -- *Big Shoulders* (condensed, display weight) for headings and
-  catalog numbers, giving them a confident specimen-label identity;
-  *IBM Plex Sans* for UI copy and body text; *IBM Plex Mono* reserved for
-  aligned tabular numerals (stat values, dex numbers). All three are
-  self-hosted as local `.woff2` files under `web/fonts/` so the app has no
-  runtime dependency on an external font CDN.
-- **Layout** -- a persistent left rail (collapsing to a bottom tab bar on
-  mobile) plus a sticky top search bar; Pokédex and collection use a
-  responsive card grid; the detail panel is a single right-side drawer
-  reused for every "inspect one Pokémon" moment. Deliberately avoided: the
-  warm-cream-plus-terracotta-serif look and the near-black-plus-single-accent
-  look that read as default "AI-generated" choices, a SaaS card kit with
-  uniform shadows, and ALL-CAPS eyebrow labels.
-- **Accessibility** -- visible focus rings throughout, `prefers-reduced-motion`
-  respected, every modal (detail drawer, Pokémon picker, confirm/prompt
-  dialogs) traps focus, closes on Escape, and restores focus to whatever
-  opened it. Confirmations and name prompts use in-app dialogs, not
-  `window.confirm`/`window.prompt`.
+- **Tokens** -- all colours, fonts, shadows and patterns live in
+  `web/styles/tokens.css`: `--dex-red` `#E3350D` (device body, primary
+  action), `--lcd` `#C7E6B8` / `--lcd-dark` `#1D3B17` / `--lcd-line`
+  `#A9CF98` (screens), `--bezel` `#E9E4D4` (surrounds, cards, panels),
+  `--cream-deep` `#F6EBC8` (page, with a speaker-grille dot grid) and `--ink`
+  `#222224` for every outline and text. Yellow and blue are tiny accents
+  only (focus ring, lens). The 18 official type colours are used as badge
+  fills with ink or white label text chosen for contrast.
+- **Type** -- *Bowlby One SC* for titles and Pokémon names (white on red with
+  a hard ink shadow, or ink on bezel); *Rubik* (variable) for UI text;
+  *Silkscreen* only for numbers (dex numbers, counts, stats, totals). All
+  three are OFL fonts, self-hosted as `.woff2` under `web/fonts/` -- there is
+  no CDN.
+- **Depth and shape** -- 3px ink outlines, flat offset shadows (never
+  blurred), and bevelled corners via `corner-shape: bevel` inside
+  `@supports`, with 4--8px rounded corners as the fallback. No gradients
+  other than hard-edged patterns (grille, LCD scanlines, segmented bars).
+- **Files** -- `tokens.css` (tokens, fonts, primitives), `main.css` (device
+  shell and shared components), `database.css` (Pokédex, detail sheet, team,
+  battle and account screens).
+- **Layout** -- content is capped at about 1100px. Only the content area
+  scrolls, so the red device scrollbar starts below the header. On phones
+  (720px and below) the navigation becomes a red bottom button row and the
+  browse grid stays at three columns.
+- **Motion** -- only where it means something: keys press down, cards lift
+  2px, and the detail sheet, dialogs and menus use a 240ms stepped
+  "power-on" reveal. All of it is disabled under `prefers-reduced-motion`.
+- **Accessibility** -- visible focus ring (ink outline plus yellow halo),
+  labelled controls, AA contrast (`--lcd-dark` on `--lcd` is 9.1:1; white on
+  `--dex-red` is only used at large-text sizes), state never conveyed by
+  colour alone, and every modal (detail sheet, Pokémon picker, confirm and
+  prompt dialogs) traps focus, closes on Escape, and restores focus.
 
 ## Battle scoring -- deterministic and documented
 
